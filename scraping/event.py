@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Event object.
 
@@ -18,6 +19,11 @@ class Event(object):
         self.location = location 
     
     def __str__(self):
-        return self.name + '\n' + str(self.starttime) + '---' + str(self.endtime) + '\n' + self.location
+        ret_string = self.name + '\n' + str(self.starttime) + '---' + str(self.endtime) + '\n'
+        ret_string = ret_string + unicode(self.location, errors='ignore')
+        return ret_string
+    
+    def set_location(self, location):
+        self.location = location
     
     

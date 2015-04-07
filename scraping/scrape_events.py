@@ -102,12 +102,7 @@ def dance():
                     location = re.sub('<.*?>', '', x)
                     for e in my_events:
                         e.set_location(location)
-                        print e
-                    print '###'
-                   
-            print '-----'
-
-        print '%%%%%%%%%%%%%%%%%%%%%%%%%%' 
+                        all_events.append(e)
                   
 
 '''
@@ -136,3 +131,7 @@ def oa():
 
 #oa()
 dance()
+
+for e in all_events:
+    print e
+    print ''
