@@ -13,7 +13,6 @@ from dateutil.parser import *
 from dateutil.rrule import *
 import datetime
 import re
-from Carbon.Aliases import false
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
 
@@ -48,15 +47,19 @@ def dance():
         start_date = datetime.datetime.now()
         name = ''
         end_date = get_end_of_semester()
-        list_of_dates = []
-        has_start_time = False
         
         for s in subclass.select('p'):
             
             text = str(s).split('\n')
             
             # analyze each event one by one
+            my_events = []
             for x in text:
+                list_of_dates = []
+                has_start_time = False
+                start_time = datetime.time(0, 0)
+                end_time = datetime.time(0, 0)
+                
                 # set start date for this set of events
                 if not has_start_date:
                     if "Begins" in x:
@@ -86,13 +89,20 @@ def dance():
                             exacttime = datetime.time(int(t.split(':')[0]), int(t.split(':')[1]))
                             if not has_start_time:
                                 has_start_time = True
-                                start_date = datetime.datetime.combine(start_date.date(), exacttime)
+                                start_time = exacttime
                             else:
-                                end_date = datetime.datetime.combine(end_date.date(), exacttime)
+                                end_time = exacttime
                     
-                    print list_of_dates       
-                    print start_date
-                    print end_date
+                    for l in list_of_dates:
+                        start_datetime = datetime.datetime.combine(l, start_time)
+                        end_datetime = datetime.datetime.combine(l, end_time)
+                        e = event.Event(name, start_datetime, end_datetime, '')
+                        my_events.append(e)
+                elif my_events:
+                    location = re.sub('<.*?>', '', x)
+                    for e in my_events:
+                        e.set_location(location)
+                        print e
                     print '###'
                    
             print '-----'
