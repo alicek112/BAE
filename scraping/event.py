@@ -14,7 +14,7 @@ class Event(object):
     def __init__(self, name, starttime, endtime, location):
         self.name = name 
         self.starttime = starttime
-        self.endttime = endtime
+        self.endtime = endtime
         self.location = location 
     
     def __str__(self):

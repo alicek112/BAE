@@ -13,6 +13,7 @@ from dateutil.parser import *
 from dateutil.rrule import *
 import datetime
 import re
+from Carbon.Aliases import false
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
 
@@ -39,21 +40,36 @@ def dance():
     soup = BeautifulSoup(response.text)
     
     sections = soup.select('div.page-mod')
-    for s in sections:
-        class_type = s.find('h4').get_text()
+    
+    for subclass in sections:
+        class_type = subclass.find('h4').get_text()
         
-        for subclass in s.select('p'):
-            name = ''
-            end_date = get_end_of_semester()
+        has_start_date = False
+        start_date = datetime.datetime.now()
+        name = ''
+        end_date = get_end_of_semester()
+        list_of_dates = []
+        has_start_time = False
+        
+        for s in subclass.select('p'):
             
-            for x in subclass:
-                if "Begins" in x:
-                    start_date = parse(x[7:].encode('utf-8'), fuzzy=True)
+            text = str(s).split('\n')
+            
+            # analyze each event one by one
+            for x in text:
+                # set start date for this set of events
+                if not has_start_date:
+                    if "Begins" in x:
+                        date = re.sub('<.*?>', '', x)
+                        start_date = parse(date[7:], fuzzy=True)
+                        has_start_date = True
                 
-                elif x.name == 'strong':
-                    name = x.get_text() + ' ' + class_type
-                
-                elif ':' in x:
+                # analyze the event
+                if 'strong' in x:
+                    name = re.sub('<.*?>', '', x) + ' ' + class_type
+
+                elif ':' in x: 
+                    # calculate the weekly dates from start date to end date
                     dates = x.split(':')[0].split(' ')
                     weekly = ()
                     for d in dates:
@@ -62,15 +78,27 @@ def dance():
                             new_tuple = (days_of_the_week[d],)
                             weekly = weekly + new_tuple
                     list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date, byweekday=weekly))
+                    
+                    # calculate times
+                    times = x.split(' ')
+                    for t in times:
+                        if any(i.isdigit() for i in t):
+                            exacttime = datetime.time(int(t.split(':')[0]), int(t.split(':')[1]))
+                            if not has_start_time:
+                                has_start_time = True
+                                start_date = datetime.datetime.combine(start_date.date(), exacttime)
+                            else:
+                                end_date = datetime.datetime.combine(end_date.date(), exacttime)
+                    
+                    print list_of_dates       
                     print start_date
-                    print ' '
-            
-                    for l in list_of_dates:
-                        print str(l)
+                    print end_date
+                    print '###'
+                   
             print '-----'
 
-
-        print '%%%%%%%%%%%%%%%%%%%%%%%%%%'
+        print '%%%%%%%%%%%%%%%%%%%%%%%%%%' 
+                  
 
 '''
 Scrape the OA website for climbing wall information.
