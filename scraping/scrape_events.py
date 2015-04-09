@@ -125,6 +125,51 @@ def dance():
                     for e in my_events:
                         e.set_info(location)
                         all_events.append(e)
+                        
+'''
+Scrape the Tango Club website's homepage.
+'''
+def tango():   
+    dance_url = 'http://www.princeton.edu/~tango/index.shtml'
+    response = requests.get(dance_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    
+    section = soup.select('td.left')[0]
+    
+    # first paragraph contains both the start date and general information
+    paragraphs = section.select('p')
+    start_date = parse(paragraphs[0].get_text(), fuzzy=True)
+    end_date = get_end_of_semester()
+    info = paragraphs[0].get_text()
+    
+    # parse through list of scheduled events
+    list = section.select('li')
+    for l in list:
+        name = l.get_text().rsplit(':', 1)[1]
+        times = l.get_text().rsplit(':', 1)[0].split('-')
+        
+        start_times = re.split('\.|:', times[0])
+        start_hr = int(re.split('[p|a]m', start_times[0])[0])
+        start_min = 0
+        if len(start_times) > 1:
+            start_min = int(re.split('[p|a]m', start_times[1])[0])
+        end_times = re.split('\.|:', times[1])
+        end_hr = int(re.split('[p|a]m', end_times[0])[0])
+        end_min = 0
+        if len(end_times) > 1:
+            end_min = int(re.split('[p|a]m', end_times[1])[0])
+        
+        if 'pm' in times[1]:
+            start_hr += 12
+            end_hr += 12
+        if 'pm' in times[0]:
+            start_hr += 12
+        if 'am' in times[1] and end_hr == 12:
+            end_hr -= 12       
+        
+        start_time = datetime.time(start_hr, start_min)
+        end_time = datetime.time(end_hr, end_min)
+        make_weekly_events(name, start_date, end_date, start_time, end_time, None, info)
                   
 
 '''
@@ -133,7 +178,7 @@ Scrape the OA website for climbing wall information.
 def oa():
     oa_url = 'https://outdooraction.princeton.edu/oa-calendar'
 
-    response = requests.get(oa_url, headers={'User-Agent': 'Mozilla/5.0'})
+    response = requests.get(oa_url, headers=headers)
     soup = BeautifulSoup(response.text)
     #print soup.prettify()
     sections = soup.select('div.item')
@@ -154,8 +199,14 @@ def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly,
     list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date, byweekday=weekly))
     
     for l in list_of_dates:
-        start_datetime = datetime.datetime.combine(l, start_time)
-        end_datetime = datetime.datetime.combine(l, end_time)
+        day = l
+        start_datetime = datetime.datetime.combine(day, start_time)
+        
+        # handle case of end time being on a different day
+        if end_time < start_time:
+            day = day + relativedelta(days=+1)
+        
+        end_datetime = datetime.datetime.combine(day, end_time)
         e = event.Event(name, start_datetime, end_datetime, info)
         all_events.append(e)
 
@@ -307,7 +358,8 @@ def fitness():
 
 #oa()
 #dance()
-fitness()
+#fitness()
+tango()
 
 for e in all_events:
     print e

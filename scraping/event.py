@@ -21,7 +21,7 @@ class Event(object):
     def __str__(self):
         ret_string = self.name + '\n' + str(self.starttime) + '---' + str(self.endtime) + '\n'
         if isinstance(self.info, unicode):
-            ret_string = ret_string + unicode(self.info, errors='ignore')
+            ret_string = ret_string + self.info.encode('utf-8')
         else:
             ret_string = ret_string + self.info
         return ret_string
