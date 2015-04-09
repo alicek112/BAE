@@ -11,10 +11,18 @@ from bs4 import BeautifulSoup
 from urllib2 import urlopen
 from dateutil.parser import *
 from dateutil.rrule import *
+from dateutil.relativedelta import *
 import datetime
 import re
+from StringIO import StringIO
+from pdfminer.pdfparser import PDFParser
+import urllib2
+from urllib2 import Request
+import csv
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
+ordered_days = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays']
+headers = {'User-Agent': 'Mozilla/5.0'}
 
 all_events = []
 
@@ -33,6 +41,20 @@ def get_end_of_semester():
                 date = parse(y.get_text())
     return date
 
+'''
+Returns day of the week code from a string.
+'''
+def get_day_of_week(input):
+    if not input:
+        return None
+    for d in days_of_the_week:
+        if input.lower() in d.lower():
+            return days_of_the_week[d]
+    return None
+
+'''
+Scrapes the dance department website for dance events.
+'''
 def dance():
     dance_url = 'http://arts.princeton.edu/academics/dance/co-curricular-offerings/'
     response = requests.get(dance_url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -101,7 +123,7 @@ def dance():
                 elif my_events:
                     location = re.sub('<.*?>', '', x)
                     for e in my_events:
-                        e.set_location(location)
+                        e.set_info(location)
                         all_events.append(e)
                   
 
@@ -123,14 +145,169 @@ def oa():
             name = s.find('div', class_='views-field views-field-title').get_text()
             starttime = parse(s.find('span', class_='date-display-start').attrs['content'])
             endtime = parse(s.find('span', class_='date-display-end').attrs['content'])
-            location = 'OA Climbing Wall - Princeton Stadium'
-            e = event.Event(name, starttime, endtime, location)
+            info = 'OA Climbing Wall - Princeton Stadium'
+            e = event.Event(name, starttime, endtime, info)
             all_events.append(e)
-            print e
-            print '----'
+
+
+def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly, info):
+    list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date, byweekday=weekly))
+    
+    for l in list_of_dates:
+        start_datetime = datetime.datetime.combine(l, start_time)
+        end_datetime = datetime.datetime.combine(l, end_time)
+        e = event.Event(name, start_datetime, end_datetime, info)
+        all_events.append(e)
+
+'''
+Scrape the Dillon PDF Fitness schedules
+'''
+def fitness():
+    fitness_url = 'http://www.princeton.edu/campusrec/instructional-programs/schedules-1/'
+    
+    response= requests.get(fitness_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    
+    for link in soup.findAll('a', href=True):
+        href = link['href']
+        
+        # find all the pdf-schedules on the page, load their csvs and analyze:
+        if re.search('\.pdf', href):
+            new_url = fitness_url + href
+            
+            # read in csv file
+            csv_file = href[:-4] + '.csv' 
+            csv_rows = []
+            with open(csv_file, 'rb') as csvfile:
+                reader = csv.reader(csvfile)
+                for row in reader:
+                    csv_rows.append(row)
+            
+            start_date = None
+            end_date = None
+            day_of_week = (days_of_the_week['Sundays'],)
+            week_index = 0
+            start_time = None
+            end_time = None
+            name = None
+            info = ""
+            start_date_set = False
+            time_first = True
+            first_element = True
+            last_time = None
+            day_changed = False
+            
+            # check if there is a date range in the text of the link
+            if re.search("\d/\d+", link.get_text()):
+                dates = link.get_text().split()[0]
+                start_date = parse(dates.split('-')[0], fuzzy=True)
+                end_date = parse(dates.split('-')[1], fuzzy=True) 
+                start_date_set = True    
+            
+            #parse csv file    
+            for i in range(20):
+                for row in csv_rows:
+                    if len(row) > i:
+                        this_element = re.sub('\r', '\n', row[i])
+                        
+                        # loop through lines one by one, identifying parts of event
+                        if this_element:
+                            lines = this_element.split('\n')
+                            
+                            # determine if events start with times or not (if it's a short element, it's a time)
+                            if first_element:
+                                if len(lines) > 3:
+                                    time_first = False
+                                first_element = False
+                            
+                            for line in lines:
+                                
+                                # check if this line is a date (if so, and if no start date, update start date)
+                                if re.search('\d+/\d+', line):
+                                    if not start_date_set:                                            
+                                        match = re.search('\d+/\d+', line)
+                                        start_date = parse(line[match.start():match.end()], fuzzy=True)
+                                
+                                # check if this line is a day of the week (if so, update day of week)
+                                new_line = re.split(' |,', line)[0]
+                                possible_days = new_line.split('/')
+                                if get_day_of_week(possible_days[0]):
+                                    day_changed = True
+                                    day_of_week = ()
+                                    for d in possible_days:
+                                        day_of_week = day_of_week + (get_day_of_week(d),)
+                                
+                                # check if this line is time (has numbers and am/pm)
+                                elif re.search('\d.*[a|p]m', line):
+                                    # check if time already exists and if so, make a new set of events
+                                    if time_first and start_time:
+                                        if last_time:
+                                            # if start time changes over but day hasn't changed, update day
+                                            if start_time < last_time and not day_changed:
+                                                week_index += 1
+                                                day_of_week = (days_of_the_week[ordered_days[week_index]])
+                                        
+                                        # make new set of events
+                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info)
+                                        
+                                        last_time = start_time
+                                        name = None
+                                        info = ""
+                                        if not start_date_set:
+                                            start_date = None
+                                        start_time = None
+                                        end_time = None
+                                    
+                                    
+                                    start = line.split('-')[0].split(':')
+                                    end = line.split('-')[1].split(':')
+                                    
+                                    start_hr = int(re.split('[a|p]m', start[0])[0])
+                                    start_min = 0
+                                    end_hr = int(re.split('[a|p]m', end[0])[0])
+                                    end_min = 0
+                                    if len(start) > 1:
+                                        start_min = int(re.split('[a|p]m', start[1])[0])
+                                    if len(end) > 1:
+                                        end_min = int(re.split('[a|p]m', end[1])[0])
+                                    
+                                    if 'pm' in line:
+                                        if end_hr < 12:
+                                            if start_hr < 12:
+                                                start_hr += 12
+                                            end_hr += 12
+                                    
+                                    start_time = datetime.time(start_hr, start_min)
+                                    end_time = datetime.time(end_hr, end_min)
+                                
+                                # check if this line has "week" in it (if so, update end date)
+                                elif 'week' in line:
+                                    num_weeks = int(line.split('week')[0])
+                                    end_date = start_date + relativedelta(weeks=+num_weeks)
+                                    
+                                    if not time_first:
+                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info)
+                                        name = None
+                                        info = ""
+                                        start_time = None
+                                        end_time = None
+                                        end_date = None
+                                
+                                # check if no name, if so the next line is name
+                                elif not name:
+                                    name = line
+                                
+                                # rest of the information is "info"
+                                else:
+                                    info = info + ' ' + line
+                               
+            # whatever is remaining is an event
+            if name and start_date and start_time:
+                make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info)
 
 #oa()
-dance()
+#dance()
+fitness()
 
 for e in all_events:
     print e

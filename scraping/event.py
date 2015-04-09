@@ -10,20 +10,23 @@ class Event(object):
     name = ""
     starttime = datetime.datetime.now()
     endtime = datetime.datetime.now()
-    location = ""
+    info = ""
     
-    def __init__(self, name, starttime, endtime, location):
+    def __init__(self, name, starttime, endtime, info):
         self.name = name 
         self.starttime = starttime
         self.endtime = endtime
-        self.location = location 
+        self.info = info
     
     def __str__(self):
         ret_string = self.name + '\n' + str(self.starttime) + '---' + str(self.endtime) + '\n'
-        ret_string = ret_string + unicode(self.location, errors='ignore')
+        if isinstance(self.info, unicode):
+            ret_string = ret_string + unicode(self.info, errors='ignore')
+        else:
+            ret_string = ret_string + self.info
         return ret_string
     
-    def set_location(self, location):
-        self.location = location
+    def set_info(self, info):
+        self.info = info
     
     
