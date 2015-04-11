@@ -118,7 +118,7 @@ def dance():
                     for l in list_of_dates:
                         start_datetime = datetime.datetime.combine(l, start_time)
                         end_datetime = datetime.datetime.combine(l, end_time)
-                        e = event.Event(name, start_datetime, end_datetime, '')
+                        e = event.Event(name, start_datetime, end_datetime, '', 'dance')
                         my_events.append(e)
                 elif my_events:
                     location = re.sub('<.*?>', '', x)
@@ -169,7 +169,7 @@ def tango():
         
         start_time = datetime.time(start_hr, start_min)
         end_time = datetime.time(end_hr, end_min)
-        make_weekly_events(name, start_date, end_date, start_time, end_time, None, info)
+        make_weekly_events(name, start_date, end_date, start_time, end_time, None, info, 'dance')
                   
 
 '''
@@ -191,11 +191,11 @@ def oa():
             starttime = parse(s.find('span', class_='date-display-start').attrs['content'])
             endtime = parse(s.find('span', class_='date-display-end').attrs['content'])
             info = 'OA Climbing Wall - Princeton Stadium'
-            e = event.Event(name, starttime, endtime, info)
+            e = event.Event(name, starttime, endtime, info, 'oa')
             all_events.append(e)
 
 
-def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly, info):
+def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly, info, category):
     list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date, byweekday=weekly))
     
     for l in list_of_dates:
@@ -207,7 +207,7 @@ def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly,
             day = day + relativedelta(days=+1)
         
         end_datetime = datetime.datetime.combine(day, end_time)
-        e = event.Event(name, start_datetime, end_datetime, info)
+        e = event.Event(name, start_datetime, end_datetime, info, category)
         all_events.append(e)
 
 '''
@@ -299,7 +299,7 @@ def fitness():
                                                 day_of_week = (days_of_the_week[ordered_days[week_index]])
                                         
                                         # make new set of events
-                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info)
+                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, 'fitness')
                                         
                                         last_time = start_time
                                         name = None
@@ -337,7 +337,7 @@ def fitness():
                                     end_date = start_date + relativedelta(weeks=+num_weeks)
                                     
                                     if not time_first:
-                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info)
+                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, 'fitness')
                                         name = None
                                         info = ""
                                         start_time = None
@@ -354,11 +354,11 @@ def fitness():
                                
             # whatever is remaining is an event
             if name and start_date and start_time:
-                make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info)
+                make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, 'fitness')
 
-#oa()
-#dance()
-#fitness()
+oa()
+dance()
+fitness()
 tango()
 
 for e in all_events:
