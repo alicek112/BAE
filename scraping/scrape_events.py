@@ -15,6 +15,7 @@ import datetime
 import re
 import csv
 import slate
+import urllib2
 from urllib2 import Request, urlopen
 from StringIO import StringIO
 
@@ -449,12 +450,58 @@ def facilities():
         # parse indoor track hours
         get_facilities_hours(schedule[9].split(), 'Indoor Track Hours', 'running', 'Jadwin Gym Indoor Track', start_date) 
 
+def special_fitness():
+    fitness_url = 'http://www.princeton.edu/campusrec/stephens-fitness-center/special-events/'
+    
+    response = requests.get(fitness_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    #print soup.prettify()
+    links = soup.select('div.filename')
+    
+    for l in links:
+        title = l.select('a')[0].get_text()
+        
+        # '>' indicates this is an event link
+        if '>' in title:
+        
+            url = fitness_url + l.select('a')[0]['href']
+            text = ''
+            try:
+                remoteFile = urlopen(Request(url)).read()
+                memoryFile = StringIO(remoteFile)
+                doc = slate.PDF(memoryFile)
+                text = doc[0]
+            except urllib2.HTTPError:
+                continue
+            
+            name = title.split(':')[0]
+            date = title.split(':')[1].split('>')[0]
+            time = title.split(':')[1].split('>')[1]
+            
+            date_time = parse(date, fuzzy=True)
+            
+            start = time.split('to')[0]
+            end = time.split('to')[1]
+            start_hr = int(re.split('[a|p]m', start)[0])
+            end_hr = int(re.split('[a|p]m', end)[0])
+            
+            if 'p' in start:
+                start_hr += 12
+            if 'p' in end:
+                end_hr += 12
+            
+            starttime = datetime.datetime.combine(date_time, datetime.time(start_hr))
+            endtime = datetime.datetime.combine(date_time, datetime.time(end_hr))
+            
+            e = event.Event(name, starttime, endtime, text, 'stephens')
+            all_events.append(e)
 
 #oa()
 #dance()
 #fitness()
 #tango()
-facilities()
+#facilities()
+special_fitness()
 
 for e in all_events:
     print e
