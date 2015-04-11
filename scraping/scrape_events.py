@@ -8,16 +8,11 @@ Creator: Alice Kroutikova '15
 import requests
 import event
 from bs4 import BeautifulSoup
-from urllib2 import urlopen
 from dateutil.parser import *
 from dateutil.rrule import *
 from dateutil.relativedelta import *
 import datetime
 import re
-from StringIO import StringIO
-from pdfminer.pdfparser import PDFParser
-import urllib2
-from urllib2 import Request
 import csv
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
