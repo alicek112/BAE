@@ -30,7 +30,7 @@ Returns the datetime of the last day of exams for the current semester.
 '''
 def get_end_of_semester():
     calendar_url = 'http://registrar.princeton.edu/events/'
-    response = requests.get(calendar_url, headers={'User-Agent': 'Mozilla/5.0'})
+    response = requests.get(calendar_url, headers=headers)
     soup = BeautifulSoup(response.text)
     
     date = datetime.datetime.now()
@@ -496,12 +496,44 @@ def special_fitness():
             e = event.Event(name, starttime, endtime, text, 'stephens')
             all_events.append(e)
 
+def aikido():
+    aikido_url = 'http://www.princeton.edu/~aikido/classes.html'
+    response = requests.get(aikido_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    text = soup.select('div.text-right')[0]
+    
+    location = text.p.get_text()
+    head = text.select('h3')
+    start_date = datetime.datetime.today()
+    end_date = get_end_of_semester()
+    
+    for h in head:
+        name = 'Aikido Class'
+        category = 'martial'
+        
+        dates = h.get_text().split(',')
+        weekly = (get_day_of_week(dates[0]),)
+        print weekly
+        
+        times = dates[1].split('-')
+        start_hr = int(times[0].split(':')[0]) + 12
+        end_hr = int(times[1].split(':')[0]) + 12
+        start_min = int(times[0].split(':')[1])
+        end_min = int(times[1].split(':')[1])
+        
+        start = datetime.time(start_hr, start_min)
+        end = datetime.time(end_hr, end_min)
+        info = h.find_next().get_text() + '\n' + location
+        
+        make_weekly_events(name, start_date, end_date, start, end, weekly, info, category)
+
 #oa()
 #dance()
 #fitness()
 #tango()
 #facilities()
-special_fitness()
+#special_fitness()
+aikido()
 
 for e in all_events:
     print e
