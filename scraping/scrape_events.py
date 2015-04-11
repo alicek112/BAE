@@ -14,6 +14,9 @@ from dateutil.relativedelta import *
 import datetime
 import re
 import csv
+import slate
+from urllib2 import Request, urlopen
+from StringIO import StringIO
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
 ordered_days = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays']
@@ -351,10 +354,107 @@ def fitness():
             if name and start_date and start_time:
                 make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, 'fitness')
 
-oa()
-dance()
-fitness()
-tango()
+'''
+Splits text by a list of separators - adapted from Stackoverflow.com code
+'''
+def split(txt, seps):
+    default_sep = seps[0]
+
+    # we skip seps[0] because that's the default seperator
+    for sep in seps[1:]:
+        txt = txt.replace(sep, default_sep)
+    return txt.split(default_sep)
+
+def get_facilities_hours(hours, name, category, info, start_date):
+    my_date = start_date
+    last_time = None
+    for d in hours:
+        if re.search('\d:', d):
+            start_time = re.split('-|—', d)[0]
+            end_time = re.split('-|—', d)[1]
+            start_hr = int(re.split('[a|p]o*m', start_time.split(':')[0])[0])
+            end_hr = int(re.split('[a|p]o*m', end_time.split(':')[0])[0])
+            start_min = int(re.split('[a|p]o*m', start_time.split(':')[1])[0])
+            end_min = int(re.split('[a|p]o*m', end_time.split(':')[1])[0])
+            
+            if 'p' in start_time:
+                if start_hr < 12:
+                    start_hr += 12
+            if 'p' in end_time:
+                if end_hr < 12:
+                    end_hr += 12
+            
+            start = datetime.time(start_hr, start_min)
+            end = datetime.time(end_hr, end_min)
+            
+            today = my_date
+            start_datetime = datetime.datetime.combine(today, start)
+            if end < start:
+                today = my_date + relativedelta(days=1)
+            end_datetime = datetime.datetime.combine(today, end)
+            
+            #update day of week
+            if last_time:
+                if start_datetime < last_time:
+                    my_date = my_date + relativedelta(days=1)
+                    start_datetime = start_datetime + relativedelta(days=1)
+                    end_datetime = end_datetime + relativedelta(days=1)
+                        
+            last_time = end_datetime
+            
+            e = event.Event(name, start_datetime, end_datetime, info, category)
+            all_events.append(e)
+        
+        # if calendar says "closed", update day
+        if 'CLOSED' in d:
+            my_date = my_date + relativedelta(days=1)
+
+def facilities():
+    dillon_url = 'http://www.princeton.edu/campusrec/dillon-gym/facility-schedules/'
+
+    response = requests.get(dillon_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    #print soup.prettify()
+    links = soup.select('div.filename')
+    
+    # scrape each schedule that Dillon has on its website
+    for l in links:
+        dates = l.select('a')[0].get_text()
+        start_date = parse(dates.split('-')[0], fuzzy=True)
+        
+        url = dillon_url + l.select('a')[0]['href']
+        remoteFile = urlopen(Request(url)).read()
+        memoryFile = StringIO(remoteFile)
+        doc = slate.PDF(memoryFile)
+    
+        # separate schedule by all-caps category words: schedule[1] is everything after 'DILLON GYM', etc
+        categories = ['DILLON GYM', 'STEPHENS FITNESS CENTER', 'DILLON POOL', 
+                      'DILLON SQUASH COURTS', 'DILLON GYM MAIN FLOOR', 'CAMPUS RECREATION MAIN OFFICE',
+                      'DENUNZIO POOL', 'JADWIN GYM INDOOR TENNIS COURTS', 'JADWIN GYM INDOOR TRACK']
+        schedule = split(doc[0], categories)
+        
+        # parse through schedule of events
+        # schedule[1] is Dillon Gym Hours
+        get_facilities_hours(schedule[1].split(), 'Dillon Gym Open Hours', 'dillon', 'Dillon Gym', start_date)
+        # parse fitness center hours
+        get_facilities_hours(schedule[2].split(), 'Stephens Fitness Center Open Hours', 'stephens', 'Stephens Fitness Center', start_date)
+        # parse Dillon Pool hours
+        get_facilities_hours(schedule[3].split(), 'Dillon Pool Open Rec Swimming', 'swimming', 'Dillon Pool', start_date)
+        # parse squash courts hours
+        get_facilities_hours(schedule[4].split(), 'Dillon Squash Courts Hours', 'squash', 'Dillon Squash Courts', start_date)
+        # parse Denunzio Pool hours
+        get_facilities_hours(schedule[7].split(), 'Denunzio Pool Open Rec Swimming', 'swimming', 'Denunzio Pool', start_date)
+        # parse Jadwin tennis hours
+        get_facilities_hours(schedule[8].split(), 'Indoor Tennis Court Hours', 'tennis', 'Jadwin Gym Indoor Tennis Courts', start_date)
+        # parse indoor track hours
+        get_facilities_hours(schedule[9].split(), 'Indoor Track Hours', 'running', 'Jadwin Gym Indoor Track', start_date) 
+
+
+#oa()
+#dance()
+#fitness()
+#tango()
+facilities()
 
 for e in all_events:
     print e
