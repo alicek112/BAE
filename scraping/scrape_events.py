@@ -18,6 +18,7 @@ import slate
 import urllib2
 from urllib2 import Request, urlopen
 from StringIO import StringIO
+from objc._objc import informal_protocol
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
 ordered_days = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays']
@@ -527,13 +528,62 @@ def aikido():
         
         make_weekly_events(name, start_date, end_date, start, end, weekly, info, category)
 
+def basketball():
+    basketball_url = 'http://www.princeton.edu/campusrec/informal-recreation/noon-hoops/'
+    response = requests.get(basketball_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    section = soup.select('div.body')[0]
+    text = section.get_text().strip()
+    
+    start_date = datetime.datetime.today()
+    end_date = get_end_of_semester()
+    
+    name = text.split(' is held ')[0]
+    info = text.split(' is held ')[1]
+    time_info = location = info.split(' in ', 1)[0].split()
+    location = info.split(' in ', 1)[1]
+    
+    # put together weekly information
+    weekly = ()
+    for t in time_info:
+        day = get_day_of_week(t.strip(','))
+        if day:
+            weekly = weekly + (day,)
+    
+    # find start and end times
+    start = None
+    end = None
+    for t in time_info:
+        if re.search('\d', t):
+            start_time = t.split('-')[0]
+            end_time = t.split('-')[1]
+            start_hr = int(re.split('[a|p]m', start_time.split(':')[0])[0])
+            end_hr = int(re.split('[a|p]m', end_time.split(':')[0])[0])
+            start_min = int(re.split('[a|p]m', start_time.split(':')[1])[0])
+            end_min = int(re.split('[a|p]m', end_time.split(':')[1])[0])
+            
+            if 'p' in start_time:
+                if start_hr < 12:
+                    start_hr += 12
+            if 'p' in end_time:
+                if end_hr < 12:
+                    end_hr += 12
+            
+            start = datetime.time(start_hr, start_min)
+            end = datetime.time(end_hr, end_min)
+            
+    make_weekly_events(name, start_date, end_date, start, end, weekly, location, 'basketball')
+    
+    
+
 #oa()
 #dance()
 #fitness()
 #tango()
 #facilities()
 #special_fitness()
-aikido()
+#aikido()
+basketball()
 
 for e in all_events:
     print e
