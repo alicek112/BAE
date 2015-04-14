@@ -574,7 +574,56 @@ def basketball():
             
     make_weekly_events(name, start_date, end_date, start, end, weekly, location, 'basketball')
     
-    
+def sports():
+    sports_url = 'http://www.goprincetontigers.com/main/Schedule.dbml'
+    response = requests.get(sports_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    game = soup.select('tr.home')
+    for g in game:
+        print g.get_text().strip()
+        
+        date_info = g.select('td.date')[0].get_text().strip().split('-')
+        date = parse(date_info[0].encode('ascii', errors='ignore'), fuzzy=True)
+        end_date = None
+        if len(date_info) > 1:
+            end_date = parse(date_info[1].encode('utf-8'), fuzzy=True)
+        name = g.select('td.team')[0].get_text().strip()
+        name = name + ' vs. ' + g.select('td.opponent')[0].get_text().strip()
+        name = re.sub(' \*', ' Conference Game', name)
+        location = g.select('td.location')[0].get_text().strip()
+        time = g.select('td.time')[0].get_text().strip()
+        
+        start_datetime = date
+        end_datetime = date
+        
+        if re.search('\d', time):
+            temp_time = time.split(' ')
+            hr = int(temp_time[0].split(':')[0])
+            min = int(temp_time[0].split(':')[1])
+            if 'P' in temp_time[1]:
+                if hr < 12:
+                    hr += 12
+            time = datetime.time(hr, min)
+            start_datetime = datetime.datetime.combine(date, time)
+            end_datetime = start_datetime + relativedelta(hours=2)
+        
+        list_of_start_dates = None
+        if end_date:
+            list_of_start_dates = list(rrule(DAILY, dtstart=start_datetime, until=end_date))
+            list_of_end_dates = list(rrule(DAILY, dtstart=end_datetime, until=end_date))
+        
+        
+        # if the event is multi-day, put all of them into event
+        if list_of_start_dates:
+            for s, e in zip(list_of_start_dates, list_of_end_dates):
+                e = event.Event(name, s, e, location, 'watching')
+                all_events.append(e)
+        
+        # if event is not multi-day, insert it into database:
+        else:
+            e = event.Event(name, start_datetime, end_datetime, location, 'watching')
+            all_events.append(e)
+        
 
 #oa()
 #dance()
@@ -583,7 +632,8 @@ def basketball():
 #facilities()
 #special_fitness()
 #aikido()
-basketball()
+#basketball()
+sports()
 
 for e in all_events:
     print e
