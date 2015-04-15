@@ -1,0 +1,49 @@
+
+
+body {
+    padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+}
+
+ul.img-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+img.resize {
+	width: 400px;
+	height: 400px;
+}
+
+span.text-content {
+	background: rgba(0,0,0,0.5);
+	color: white;
+	cursor: pointer;
+	display: table;
+	height: 150px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 150px;
+	opacity: 0;
+}
+
+span.text-content span {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+
+ul.img-list li:hover span.text-content {
+  opacity: 1;
+}
+
+
+.portfolio-item {
+    margin-bottom: 25px;
+}
+
+footer {
+    margin: 50px 0;
+}
