@@ -18,13 +18,21 @@ import slate
 import urllib2
 from urllib2 import Request, urlopen
 from StringIO import StringIO
-from objc._objc import informal_protocol
+from apiclient.discovery import build
+from oauth2client.file import Storage
+from oauth2client.client import AccessTokenRefreshError
+from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.tools import run
+import json
+import MySQLdb as mdb
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
 ordered_days = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays']
 headers = {'User-Agent': 'Mozilla/5.0'}
 
 all_events = []
+
+cal_key = 'AIzaSyCKbcXTZ1vk_CzAwYLrvCFDiiLiVxoVtd8'
 
 '''
 Returns the datetime of the last day of exams for the current semester.
@@ -623,18 +631,62 @@ def sports():
         else:
             e = event.Event(name, start_datetime, end_datetime, location, 'watching')
             all_events.append(e)
-        
 
-#oa()
-#dance()
-#fitness()
-#tango()
-#facilities()
-#special_fitness()
-#aikido()
-#basketball()
+def ice():  
+    iceId = '59tmhsi6gspp713e2aa91i0ea88c5h6g@import.calendar.google.com'
+    timeMin = datetime.datetime.now() - relativedelta(months=1)
+    timeMin = timeMin.isoformat('T') + 'Z'
+    ice_url = 'https://www.googleapis.com/calendar/v3/calendars/' + iceId + '/events?singleEvents=true&timeMin=' + timeMin + '&key=' + cal_key
+
+    response = requests.get(ice_url, headers=headers)
+    j = response.json()
+    category = 'skating'
+    info = 'Free skating at Baker Ice Rink'
+    for x in j['items']:
+        end = parse(x['end']['dateTime'])
+        start = parse(x['start']['dateTime'])
+        name = x['summary']
+        e = event.Event(name, start, end, info, category)
+        all_events.append(e)
+
+def swing():  
+    swing_url = 'http://swing.princeton.edu/announcements/'
+    response = requests.get(swing_url, headers=headers)
+    soup = BeautifulSoup(response.text)
+    announcement = soup.select('article')
+    for a in announcement:
+        print a.div.get_text()
+        print a.a.get_text()
+        print '%%%%'
+    
+oa()
+dance()
+fitness()
+tango()
+facilities()
+special_fitness()
+aikido()
+basketball()
 sports()
+ice()
+swing()
 
 for e in all_events:
     print e
     print ''
+
+con = mdb.connect('bae.cp0g2lykd7ui.us-east-1.rds.amazonaws.com', 'bae', 'bae333bae', 'bae333');
+
+with con:
+    
+    cur = con.cursor()
+    cur.execute("DROP TABLE IF EXISTS mainBae")
+    cur.execute("CREATE TABLE mainBae(NAME VARCHAR(100), \
+CATEGORY VARCHAR(100), START DATETIME, END DATETIME, INFO VARCHAR(1000))")
+    for e in all_events:
+        name = e.name
+        start = e.starttime
+        end = e.endtime
+        info = e.info
+        cat = e.category
+        cur.execute("INSERT INTO mainBae (NAME, CATEGORY, START, END, INFO) VALUES (%s, %s, %s, %s, %s)", (name, cat, start, end, info))
