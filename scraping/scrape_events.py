@@ -671,6 +671,18 @@ sports()
 ice()
 swing()
 
-for e in all_events:
-    print e
-    print ''
+con = mdb.connect('bae.cp0g2lykd7ui.us-east-1.rds.amazonaws.com', 'bae', 'bae333bae', 'bae333');
+
+with con:
+    
+    cur = con.cursor()
+    cur.execute("DROP TABLE IF EXISTS mainBae")
+    cur.execute("CREATE TABLE mainBae(NAME VARCHAR(100), \
+CATEGORY VARCHAR(100), START DATETIME, END DATETIME, INFO VARCHAR(1000) CANCELLED INTEGER, UPDATED INTEGER)")
+    for e in all_events:
+    name = e.name
+        start = e.starttime
+        end = e.endtime
+        info = e.info
+        cat = e.category
+        cur.execute("INSERT INTO mainBae (NAME, CATEGORY, START, END, INFO) VALUES (%s, %s, %s, %s, %s, 0, 0)", (name, cat, start, end, info))
