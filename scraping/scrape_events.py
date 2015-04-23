@@ -202,7 +202,6 @@ def oa():
             e = event.Event(name, starttime, endtime, info, 'oa')
             all_events.append(e)
 
-
 def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly, info, category):
     list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date, byweekday=weekly))
     
