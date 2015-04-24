@@ -306,7 +306,10 @@ def fitness():
                                                 day_of_week = (days_of_the_week[ordered_days[week_index]])
                                         
                                         # make new set of events
-                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, 'fitness')
+                                        cat = 'fitness'
+                                        if 'yoga' in name.lower() or 'yoga' in info.lower():
+                                            cat = 'yoga'
+                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
                                         
                                         last_time = start_time
                                         name = None
@@ -344,7 +347,10 @@ def fitness():
                                     end_date = start_date + relativedelta(weeks=+num_weeks)
                                     
                                     if not time_first:
-                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, 'fitness')
+                                        cat = 'fitness'
+                                        if 'yoga' in name.lower() or 'yoga' in info.lower():
+                                            cat = 'yoga'
+                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
                                         name = None
                                         info = ""
                                         start_time = None
@@ -361,7 +367,10 @@ def fitness():
                                
             # whatever is remaining is an event
             if name and start_date and start_time:
-                make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, 'fitness')
+                cat = 'fitness'
+                if 'yoga' in name.lower() or 'yoga' in info.lower():
+                    cat = 'yoga'
+                make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
 
 '''
 Splits text by a list of separators - adapted from Stackoverflow.com code
@@ -679,7 +688,7 @@ with con:
     cur.execute("CREATE TABLE mainBae(NAME VARCHAR(100), \
 CATEGORY VARCHAR(100), START DATETIME, END DATETIME, INFO VARCHAR(1000) CANCELLED INTEGER, UPDATED INTEGER)")
     for e in all_events:
-    name = e.name
+        name = e.name
         start = e.starttime
         end = e.endtime
         info = e.info
