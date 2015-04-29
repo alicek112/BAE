@@ -1,0 +1,28 @@
+
+
+body {
+    padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+}
+
+img {
+	width: 200px;
+	height: 200px;
+}
+
+table {
+	overflow-x: auto;
+	vertical-align: center;
+	table-layout: fixed
+}
+
+td {
+	padding-right: 5px;
+	padding-left: 5px;
+}
+
+pre {
+	word-wrap: normal;
+}
+footer {
+    margin: 50px 0;
+}

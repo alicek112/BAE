@@ -1,0 +1,10 @@
+from django.conf.urls import url
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from . import views
+
+urlpatterns = [
+    # ex : /activities/
+    url(r'^$', views.index, name = 'index'),
+    # ex: /activities/category/
+    url(r'^(?P<cat_id>\w+)/$', views.cat, name = 'cat'),
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
