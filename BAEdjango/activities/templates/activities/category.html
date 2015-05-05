@@ -1,0 +1,126 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BAE | {{cat.name}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link href="{% static 'activities/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'activities/css/custom.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/activities/">BAE</a>
+            </div>
+
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                <ul class="nav navbar-nav navbar-right">
+                    <!-- login and home and stuff --!>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+
+      <!-- top row of activity icons -->
+      <div class = "row">
+
+        <div class = "table-responsive">
+
+            <table>
+
+                <tr>
+                    {% for aCat in allcats %}
+                    <td>
+
+                        <div class = "icon">
+                            <a href="/activities/{{aCat.category | safe}}/">
+                                {% with 'activities/icons/'|add:aCat.category|add:'.png' as image_static %}
+                                <img class="img-responsive" src="{% static  image_static %}">
+                                {% endwith %}
+                            </a>
+                        </div>
+                       
+                        <p><center>{{aCat.name}}<center></p>
+
+                        <center><img id={{aCat.category}} onclick="favorite('{{aCat.category | safe}}');" src="{% static 'activities/staroff.png' %}" style = "width:30px;height:30px"> <center>
+
+                    </td>
+                    {% endfor %}
+                </tr>
+
+            </table>
+        </div>
+
+
+    </div>
+    <!-- /.row -->
+
+
+    <div class = "row">
+      <!--Activity description -->
+        <div class="col-md-4 column">
+            <h1 class="page-header"> {{cat.name}}</h1>
+
+             <p> {{cat.description}} <br> <br> {{cat.resources | safe}} </p>
+         </div>
+
+        <!--calendar-->
+        <div class = "col-md-8 column">
+
+            <h1 class="page-header">Events</h1>
+            <div class="embed-responsive embed-responsive-4by3">
+            
+
+           <iframe src="https://www.google.com/calendar/embed?mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;{{cat.calendar | safe}}ctz=America%2FNew_York" style=" border-width:0 " width="800" height="600" frameborder="0" scrolling="no"></iframe>
+        </div>
+
+        </div>
+   <!-- /.row -->
+    </div>
+
+<hr>
+
+<hr>
+
+
+</div>
+<!-- /.container -->
+<script>
+function favorite(category) {
+    var image = document.getElementById(category);
+    if (image.src.match("staroff")) {
+        image.src = "{% static 'activities/staron.png' %}";
+    } 
+    else {
+        image.src = "{% static 'activities/staroff.png' %}";
+    }
+}
+</script>
+
+</body>
+
+</html>

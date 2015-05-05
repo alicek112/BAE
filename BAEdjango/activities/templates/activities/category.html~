@@ -1,0 +1,247 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BAE | Specific Category</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+  <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <!-- Navigation -->
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">BAE | Boundless Athletics Engine</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+		<!-- icons -->
+		<div class="col-md-2 column ">
+			<!-- column Heading -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">Activities
+                    </h1>
+                </div>
+            </div>
+			    <ul class = "img-list">
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://fiveparkspiranhas.org/files/2013/05/swim-logo-icon-hi.png" alt = "swim"/>
+                            <span class = "text-context"><span><a href="/activities/swimming/">SWIM</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://www.bradgansberg.com/uploads/running-201-lg-icon.png" alt="run">
+                            <span class = "text-context"><span><a href="/activities/running/">RUN</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+                    <div class="portfolio-item">
+                        <a href="#">
+                            <li>
+                            <img class="img-responsive" src="http://manayunk.com/assets/content/images/DSR/DSR_BikeIcon_Circle.jpg" alt="bike">
+                            <span class = "text-context"><span><a href="/activities/biking/">BIKE</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+                    <div class="portfolio-item">
+                        <a href="#">
+                            <li>
+                            <img class="img-responsive" src="http://cdn.mysitemyway.com/etc-mysitemyway/icons/legacy-previews/icons/glossy-black-3d-buttons-icons-sports-hobbies/044268-glossy-black-3d-button-icon-sports-hobbies-people-karate.png" alt="martial arts">
+                            <span class = "text-context"><span><a href="/activities/martial/">MARTIAL ARTS</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+               
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://foxstarpersonaltraining.com/wp-content/uploads/2013/01/GroupX-Icon3.jpg" alt="group fitness">
+                            <span class = "text-context"><span><a href="/activities/fitness/">GROUP FITNESS</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcT43tKgcO1FOrIMxNITI_PO3AIn9Q0qtuUZd_eRuvsS4jworxm6" alt="yoga">
+                            <span class = "text-context"><span><a href="/activities/yoga/">YOGA</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://columbiaparksandrecreationfoundation.org/wordpress/images/thingstodo_icons/iceskating.png" alt="skate">
+                            <span class = "text-context"><span><a href="/activities/skating/">SKATE</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://www.ymcanyc.org/page/-/icons/dance-camp-icon.png" alt="dance">
+                            <span class = "text-context"><span><a href="/activities/dance/">DANCE</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://www.clker.com/cliparts/C/G/L/s/J/2/hotel-icon-tennis-clip-art-red-white-hi.png" alt="tennis">
+                            <span class = "text-context"><span><a href="/activities/tennis/">TENNIS</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://www.clker.com/cliparts/w/J/W/w/o/i/hotel-icon-has-squash-court-md.png" alt="squash">
+                            <span class = "text-context"><span><a href="/activities/squash/">SQUASH</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+
+
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://www.summitbsa.org/wp-content/uploads/2013/01/GBGW-activities_facebook_profile-pic_climbing1.jpg" alt="climb">
+                            <span class = "text-context"><span><a href="/activities/oa/">CLIMB</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://nr1valeting.com/wp-content/uploads/2013/10/gym-icon.png" alt="gym">
+                            <span class = "text-context"><span><a href="/activities/stephens/">STEPHENS</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://cdn.mysitemyway.com/etc-mysitemyway/icons/legacy-previews/icons-256/glossy-black-3d-buttons-icons-sports-hobbies/044257-glossy-black-3d-button-icon-sports-hobbies-people-basketball23-sc29.png" alt="basketball">
+                            <span class = "text-context"><span><a href="/activities/basketball/"> BASKETBALL</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="http://hypelondonoffice.com/fitness/wp-content/uploads/2011/03/gym_icon3.gif" alt="dillon">
+                        <span class = "text-context"><span><a href="/activities/dillon/">DILLON</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+
+                    <div class="portfolio-item">
+                        <li>
+                        <a href="#">
+                            <img class="img-responsive" src="https://www.sas.com/content/dam/SAS/en_us/image/sas-com/icons/navmenu/fan-insight-icon.png" alt="watch">
+                            <span class = "text-context"><span><a href="/activities/watching/"> WATCH</a></span></span>
+                        </a>
+                    </li>
+                    </div>
+
+            </ul>
+		</div>
+		<!--Activity description -->
+		<div class="col-md-6 column">
+			<!-- column Heading -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header"> {{cat.category}}
+                    </h1>
+                </div>
+            </div>
+			<dl>
+                <dt>
+                    {{cat.description}}
+                </dt>
+				<dt>
+					Events
+				</dt>
+				<dd>
+					{% for event in events %}
+                    <p>
+                        Name: {{event.name}} <br>
+                        Start: {{event.start}} <br>
+                        End: {{event.end}} <br>
+                        {{event.info}} <br>
+                    </p>
+                    {% endfor %}
+				</dd>
+				<dt>
+					Resources
+				</dt>
+				<dd>
+					{{cat.resources}}
+				</dd>
+			</dl>
+		</div>
+		<!--calendar-->
+        <div class = "col-md-4 column">
+            <!-- Page Heading -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">What's Happening
+                    </h1>
+                </div>
+            </div>
+        </div>
+            <!-- /.row -->
+
+        <hr>
+
+       
+        <!-- /.row -->
+
+        <hr>
+
+     
+
+    </div>
+    <!-- /.container -->
+
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+</body>
+
+</html>

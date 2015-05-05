@@ -1,0 +1,41 @@
+
+
+body {
+    padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+}
+
+table {
+	overflow-x: auto;
+	table-layout: fixed;
+	width: 100%;
+}
+
+td {
+	padding-right: 5px;
+	padding-left: 5px;
+	padding-top: 15px;
+	width: 6.66%;
+	min-width: 6.66%;
+	max-width: 6.66%;
+}
+
+img {
+	width: 200px;
+	height: 200px;
+}
+.icon a {
+  display: block;
+  padding: 0 1px;
+  margin: 0;
+  -webkit-transition: 0.15s linear;
+  -webkit-transition-property: -webkit-transform margin;
+}
+
+.icon:hover a {
+ -webkit-transform: scale(1.25);
+}
+
+
+footer {
+    margin: 50px 0;
+}
