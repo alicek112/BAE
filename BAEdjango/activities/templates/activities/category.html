@@ -63,44 +63,61 @@
                                 {% endwith %}
                             </a>
                         </div>
-                       
-                        <p><center>{{aCat.name}}<center></p>
+
+                        <p><center>{{aCat.short}}<center></p>
 
                         <center><img id={{aCat.category}} onclick="favorite('{{aCat.category | safe}}');" src="{% static 'activities/staroff.png' %}" style = "width:30px;height:30px"> <center>
 
-                    </td>
-                    {% endfor %}
-                </tr>
+                        </td>
+                        {% endfor %}
+                    </tr>
 
-            </table>
+                </table>
+            </div>
+
+
         </div>
-
-
-    </div>
-    <!-- /.row -->
+    <!-- /.icon row-->
 
 
     <div class = "row">
       <!--Activity description -->
-        <div class="col-md-4 column">
+      <div class="col-md-4 column">
+
+        <div class = "row">
             <h1 class="page-header"> {{cat.name}}</h1>
+            <p> {{cat.description}} </p>
+        </div>
 
-             <p> {{cat.description}} <br> <br> {{cat.resources | safe}} </p>
-         </div>
+        <div class = "row">
+           <h1 class="page-header"> Resources </h1>
+           <p> {{cat.resources | safe}} </p>
+       </div>
 
-        <!--calendar-->
-        <div class = "col-md-8 column">
+       <div class = "row">
+           <h1 class="page-header"> Map </h1>
+           <div class="embed-responsive embed-responsive-4by3">
+               {{cat.map | safe}}
+            </div>
+        </div>
+
+
+
+     </div>
+
+         <!--calendar-->
+         <div class = "col-md-8 column">
 
             <h1 class="page-header">Events</h1>
             <div class="embed-responsive embed-responsive-4by3">
-            
 
-           <iframe src="https://www.google.com/calendar/embed?mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;{{cat.calendar | safe}}ctz=America%2FNew_York" style=" border-width:0 " width="800" height="600" frameborder="0" scrolling="no"></iframe>
-        </div>
 
-        </div>
-   <!-- /.row -->
-    </div>
+             <iframe src="https://www.google.com/calendar/embed?mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;{{cat.calendar | safe}}ctz=America%2FNew_York" style=" border-width:0 " width="800" height="600" frameborder="0" scrolling="no"></iframe>
+         </div>
+
+     </div>
+     <!-- /.row -->
+ </div>
 
 <hr>
 

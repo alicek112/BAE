@@ -63,6 +63,8 @@ class Catlist(models.Model):
     resources = models.CharField(db_column='RESOURCES', max_length=1000, blank=True, null=True)  # Field name made lowercase.
     name = models.CharField(db_column='NAME', max_length=100, blank=True, null=True)  # Field name made lowercase.
     calendar = models.CharField(db_column='CALENDAR', max_length=1000, blank=True, null=True)  # Field name made lowercase.
+    short = models.CharField(db_column='SHORT', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    map = models.CharField(db_column='MAP', max_length=1000, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
