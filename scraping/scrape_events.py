@@ -27,7 +27,7 @@ import json
 import MySQLdb as mdb
 
 days_of_the_week = {'Mondays': MO, 'Tuesdays':TU, 'Wednesdays': WE, 'Thursdays':TH, 'Fridays':FR, 'Saturdays':SA, 'Sundays':SU}
-ordered_days = ['Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays', 'Sundays']
+ordered_days = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays']
 headers = {'User-Agent': 'Mozilla/5.0'}
 
 all_events = []
@@ -124,6 +124,9 @@ def dance():
                                 end_time = exacttime
                     
                     for l in list_of_dates:
+                        if end_time < start_time:
+                            new_hour = end_time.hour + 12
+                            end_time = end_time.replace(hour=new_hour)
                         start_datetime = datetime.datetime.combine(l, start_time)
                         end_datetime = datetime.datetime.combine(l, end_time)
                         e = event.Event(name, start_datetime, end_datetime, '', 'dance')
@@ -148,7 +151,7 @@ def tango():
     paragraphs = section.select('p')
     start_date = parse(paragraphs[0].get_text(), fuzzy=True)
     end_date = get_end_of_semester()
-    info = paragraphs[0].get_text()
+    info = 'Tango Club: ' + paragraphs[0].get_text()
     
     # parse through list of scheduled events
     list = section.select('li')
@@ -230,20 +233,20 @@ def fitness():
         href = link['href']
         
         # find all the pdf-schedules on the page, load their csvs and analyze:
-        if re.search('\.pdf', href):
+        if re.search('\.pdf', href) and re.search('\d', link.get_text()):
             new_url = fitness_url + href
             
             # read in csv file
             csv_file = href[:-4] + '.csv' 
             csv_rows = []
-            with open(csv_file, 'rb') as csvfile:
+            with open(csv_file, 'rU') as csvfile:
                 reader = csv.reader(csvfile)
                 for row in reader:
                     csv_rows.append(row)
             
             start_date = None
             end_date = None
-            day_of_week = (days_of_the_week['Sundays'],)
+            day_of_week = days_of_the_week['Sundays']
             week_index = 0
             start_time = None
             end_time = None
@@ -265,6 +268,7 @@ def fitness():
             #parse csv file    
             for i in range(20):
                 for row in csv_rows:
+                    
                     if len(row) > i:
                         this_element = re.sub('\r', '\n', row[i])
                         
@@ -280,6 +284,17 @@ def fitness():
                             
                             for line in lines:
                                 
+                                if name and 'no classes' in name.lower():
+                                    last_time = start_time
+                                    name = None
+                                    info = ""
+                                    if not start_date_set:
+                                        start_date = None
+                                    start_time = None
+                                    end_time = None
+                                    week_index += 1
+                                    day_of_week = (days_of_the_week[ordered_days[week_index]])
+                                
                                 # check if this line is a date (if so, and if no start date, update start date)
                                 if re.search('\d+/\d+', line):
                                     if not start_date_set:                                            
@@ -289,6 +304,7 @@ def fitness():
                                 # check if this line is a day of the week (if so, update day of week)
                                 new_line = re.split(' |,', line)[0]
                                 possible_days = new_line.split('/')
+                                
                                 if get_day_of_week(possible_days[0]):
                                     day_changed = True
                                     day_of_week = ()
@@ -297,6 +313,7 @@ def fitness():
                                 
                                 # check if this line is time (has numbers and am/pm)
                                 elif re.search('\d.*[a|p]m', line):
+                                    
                                     # check if time already exists and if so, make a new set of events
                                     if time_first and start_time:
                                         if last_time:
@@ -309,7 +326,8 @@ def fitness():
                                         cat = 'fitness'
                                         if 'yoga' in name.lower() or 'yoga' in info.lower():
                                             cat = 'yoga'
-                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
+                                        
+                                        make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)    
                                         
                                         last_time = start_time
                                         name = None
@@ -340,7 +358,7 @@ def fitness():
                                     
                                     start_time = datetime.time(start_hr, start_min)
                                     end_time = datetime.time(end_hr, end_min)
-                                
+                                    
                                 # check if this line has "week" in it (if so, update end date)
                                 elif 'week' in line:
                                     num_weeks = int(line.split('week')[0])
@@ -351,12 +369,13 @@ def fitness():
                                         if 'yoga' in name.lower() or 'yoga' in info.lower():
                                             cat = 'yoga'
                                         make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
+                                        
                                         name = None
                                         info = ""
                                         start_time = None
                                         end_time = None
                                         end_date = None
-                                
+
                                 # check if no name, if so the next line is name
                                 elif not name:
                                     name = line
@@ -370,7 +389,8 @@ def fitness():
                 cat = 'fitness'
                 if 'yoga' in name.lower() or 'yoga' in info.lower():
                     cat = 'yoga'
-                make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
+                if 'no classes' not in name.lower():
+                    make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
 
 '''
 Splits text by a list of separators - adapted from Stackoverflow.com code
@@ -394,13 +414,18 @@ def get_facilities_hours(hours, name, category, info, start_date):
             end_hr = int(re.split('[a|p]o*m', end_time.split(':')[0])[0])
             start_min = int(re.split('[a|p]o*m', start_time.split(':')[1])[0])
             end_min = int(re.split('[a|p]o*m', end_time.split(':')[1])[0])
-            
+
             if 'p' in start_time:
                 if start_hr < 12:
                     start_hr += 12
             if 'p' in end_time:
                 if end_hr < 12:
                     end_hr += 12
+              #  elif end_min != 0:
+              #      end_hr -= 12
+            else:
+                if end_hr == 12:
+                    end_hr -= 12
             
             start = datetime.time(start_hr, start_min)
             end = datetime.time(end_hr, end_min)
@@ -437,35 +462,36 @@ def facilities():
     
     # scrape each schedule that Dillon has on its website
     for l in links:
-        dates = l.select('a')[0].get_text()
-        start_date = parse(dates.split('-')[0], fuzzy=True)
+        if re.search('\d', l.get_text()) and 'TBD' not in l.get_text():
+            dates = l.select('a')[0].get_text()
+            start_date = parse(dates.split('-')[0], fuzzy=True)
+            
+            url = dillon_url + l.select('a')[0]['href']
+            remoteFile = urlopen(Request(url)).read()
+            memoryFile = StringIO(remoteFile)
+            doc = slate.PDF(memoryFile)
         
-        url = dillon_url + l.select('a')[0]['href']
-        remoteFile = urlopen(Request(url)).read()
-        memoryFile = StringIO(remoteFile)
-        doc = slate.PDF(memoryFile)
-    
-        # separate schedule by all-caps category words: schedule[1] is everything after 'DILLON GYM', etc
-        categories = ['DILLON GYM', 'STEPHENS FITNESS CENTER', 'DILLON POOL', 
-                      'DILLON SQUASH COURTS', 'DILLON GYM MAIN FLOOR', 'CAMPUS RECREATION MAIN OFFICE',
-                      'DENUNZIO POOL', 'JADWIN GYM INDOOR TENNIS COURTS', 'JADWIN GYM INDOOR TRACK']
-        schedule = split(doc[0], categories)
-        
-        # parse through schedule of events
-        # schedule[1] is Dillon Gym Hours
-        get_facilities_hours(schedule[1].split(), 'Dillon Gym Open Hours', 'dillon', 'Dillon Gym', start_date)
-        # parse fitness center hours
-        get_facilities_hours(schedule[2].split(), 'Stephens Fitness Center Open Hours', 'stephens', 'Stephens Fitness Center', start_date)
-        # parse Dillon Pool hours
-        get_facilities_hours(schedule[3].split(), 'Dillon Pool Open Rec Swimming', 'swimming', 'Dillon Pool', start_date)
-        # parse squash courts hours
-        get_facilities_hours(schedule[4].split(), 'Dillon Squash Courts Hours', 'squash', 'Dillon Squash Courts', start_date)
-        # parse Denunzio Pool hours
-        get_facilities_hours(schedule[7].split(), 'Denunzio Pool Open Rec Swimming', 'swimming', 'Denunzio Pool', start_date)
-        # parse Jadwin tennis hours
-        get_facilities_hours(schedule[8].split(), 'Indoor Tennis Court Hours', 'tennis', 'Jadwin Gym Indoor Tennis Courts', start_date)
-        # parse indoor track hours
-        get_facilities_hours(schedule[9].split(), 'Indoor Track Hours', 'running', 'Jadwin Gym Indoor Track', start_date) 
+            # separate schedule by all-caps category words: schedule[1] is everything after 'DILLON GYM', etc
+            categories = ['DILLON GYM', 'STEPHENS FITNESS CENTER', 'DILLON POOL', 
+                          'DILLON SQUASH COURTS', 'DILLON GYM MAIN FLOOR', 'CAMPUS RECREATION MAIN OFFICE',
+                          'DENUNZIO POOL', 'JADWIN GYM INDOOR TENNIS COURTS', 'JADWIN GYM INDOOR TRACK']
+            schedule = split(doc[0], categories)
+            
+            # parse through schedule of events
+            # schedule[1] is Dillon Gym Hours
+            get_facilities_hours(schedule[1].split(), 'Dillon Gym Open Hours', 'dillon', 'Dillon Gym', start_date)
+            # parse fitness center hours
+            get_facilities_hours(schedule[2].split(), 'Stephens Fitness Center Open Hours', 'stephens', 'Stephens Fitness Center', start_date)
+            # parse Dillon Pool hours
+            get_facilities_hours(schedule[3].split(), 'Dillon Pool Open Rec Swimming', 'swimming', 'Dillon Pool', start_date)
+            # parse squash courts hours
+            get_facilities_hours(schedule[4].split(), 'Dillon Squash Courts Hours', 'squash', 'Dillon Squash Courts', start_date)
+            # parse Denunzio Pool hours
+            get_facilities_hours(schedule[7].split(), 'Denunzio Pool Open Rec Swimming', 'swimming', 'Denunzio Pool', start_date)
+            # parse Jadwin tennis hours
+            get_facilities_hours(schedule[8].split(), 'Indoor Tennis Court Hours', 'tennis', 'Jadwin Gym Indoor Tennis Courts', start_date)
+            # parse indoor track hours
+            get_facilities_hours(schedule[9].split(), 'Indoor Track Hours', 'running', 'Jadwin Gym Indoor Track', start_date) 
 
 def special_fitness():
     fitness_url = 'http://www.princeton.edu/campusrec/stephens-fitness-center/special-events/'
@@ -530,7 +556,6 @@ def aikido():
         
         dates = h.get_text().split(',')
         weekly = (get_day_of_week(dates[0]),)
-        print weekly
         
         times = dates[1].split('-')
         start_hr = int(times[0].split(':')[0]) + 12
@@ -596,7 +621,6 @@ def sports():
     soup = BeautifulSoup(response.text)
     game = soup.select('tr.home')
     for g in game:
-        print g.get_text().strip()
         
         date_info = g.select('td.date')[0].get_text().strip().split('-')
         date = parse(date_info[0].encode('ascii', errors='ignore'), fuzzy=True)
@@ -661,12 +685,59 @@ def swing():
     swing_url = 'http://swing.princeton.edu/announcements/'
     response = requests.get(swing_url, headers=headers)
     soup = BeautifulSoup(response.text)
-    announcement = soup.select('article')
-    for a in announcement:
-        print a.div.get_text()
-        print a.a.get_text()
-        print '%%%%'
+    announcement = soup.select('article')[0]
+    schedule = announcement.div.get_text().split('\n')
+    heading = announcement.a.get_text()
+    start_date = parse(announcement.time.get_text())
     
+    if 'canceled' in heading.lower():
+        return
+    
+    if 'tomorrow' in heading.lower():
+        start_date = start_date + datetime.timedelta(days=1)
+    
+    info = None
+    end_date = get_end_of_semester()
+    category = 'dance'
+    
+    for s in schedule:
+        if 'Come' in s:
+            info = re.split('[A-Z][A-Z]', s)[0]
+        if re.match('\d', s):
+            details = s.split(' – '.decode('utf-8'))
+            name = details[1]
+            hours = details[0]
+            
+            start_time = None
+            end_time = None
+            
+            if '-' in hours:
+                start_time = int(hours.split('-')[0]) + 12
+                end_time = int(hours.split('-')[1].split()[0]) + 12
+            else:
+                start_time = int(hours.split()[0]) + 12
+                end_time = start_time + 1
+            
+            start_time = datetime.time(start_time, 0)
+            end_time = datetime.time(end_time, 0)
+            
+            list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date))
+    
+            for l in list_of_dates:
+                day = l
+                start_datetime = datetime.datetime.combine(day, start_time)
+                
+                # handle case of end time being on a different day
+                if end_time < start_time:
+                    day = day + relativedelta(days=+1)
+                
+                end_datetime = datetime.datetime.combine(day, end_time)
+                e = event.Event(name, start_datetime, end_datetime, info, category)
+                all_events.append(e)
+    
+
+ 
+ 
 oa()
 dance()
 fitness()
@@ -679,6 +750,12 @@ sports()
 ice()
 swing()
 
+'''
+for e in all_events:
+    print e
+    print ''
+
+'''
 con = mdb.connect('bae.cp0g2lykd7ui.us-east-1.rds.amazonaws.com', 'bae', 'bae333bae', 'bae333');
 
 with con:
@@ -686,11 +763,11 @@ with con:
     cur = con.cursor()
     cur.execute("DROP TABLE IF EXISTS mainBae")
     cur.execute("CREATE TABLE mainBae(NAME VARCHAR(100), \
-CATEGORY VARCHAR(100), START DATETIME, END DATETIME, INFO VARCHAR(1000) CANCELLED INTEGER, UPDATED INTEGER)")
+CATEGORY VARCHAR(100), START DATETIME, END DATETIME, INFO VARCHAR(1000), CANCELLED INTEGER, UPDATED INTEGER)")
     for e in all_events:
         name = e.name
         start = e.starttime
         end = e.endtime
         info = e.info
         cat = e.category
-        cur.execute("INSERT INTO mainBae (NAME, CATEGORY, START, END, INFO) VALUES (%s, %s, %s, %s, %s, 0, 0)", (name, cat, start, end, info))
+        cur.execute("INSERT INTO mainBae (NAME, CATEGORY, START, END, INFO, CANCELLED, UPDATED) VALUES (%s, %s, %s, %s, %s, 0, 0)", (name, cat, start, end, info))
