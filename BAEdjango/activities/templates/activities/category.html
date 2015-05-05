@@ -34,7 +34,7 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Login</a></li>
+                    <!-- login and home and stuff --!>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -48,159 +48,30 @@
       <!-- top row of activity icons -->
       <div class = "row">
 
-
-
         <div class = "table-responsive">
 
             <table>
 
                 <tr>
-
+                    {% for aCat in allcats %}
                     <td>
+
                         <div class = "icon">
-
-                            <a href="/activities/basketball/">
-                                <img class="img-responsive" src="{% static 'activities/icons/basketball.png' %}" alt="basketball">
+                            <a href="/activities/{{aCat.category | safe}}/">
+                                {% with 'activities/icons/'|add:aCat.category|add:'.png' as image_static %}
+                                <img class="img-responsive" src="{% static  image_static %}">
+                                {% endwith %}
                             </a>
-                            <p><center>Basketball<center></p>
                         </div>
-                    </td>
+                       
+                        <p><center>{{aCat.name}}<center></p>
 
-                    <td>
-                        <div class = "icon">
-
-                            <a href="/activities/biking/">
-                                <img class="img-responsive" src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcS7EE4jpWulJue6R7VfHEDNK_pCqygoIpbxE_dpGtXOkH1ZGl0v" alt="bike">
-                            </a>
-
-                            <p><center>Bike<center></p>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/oa/">
-                                <img class="img-responsive" src="{% static 'activities/icons/rockclimbing.png' %}" alt="climb">
-
-                            </a>
-                            <p><center>Climb<center></p>
-                        </div>
+                        <center><img id={{aCat.category}} onclick="favorite('{{aCat.category | safe}}');" src="{% static 'activities/staroff.png' %}" style = "width:30px;height:30px"> <center>
 
                     </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/dance/">
-                                <img class="img-responsive" src="http://move2change.com/wp-content/uploads/2014/04/DanceIconYlw-601.png" alt="dance">
-                            </a>
-                            <p><center>Dance<center></p>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/dillon/">
-                                <img class="img-responsive" src="{% static 'activities/icons/gymhours.png' %}" alt="dillon">
-                            </a>
-                            <p><center>Dillon<center></p>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/martial/"> 
-                                <img class="img-responsive" src="{% static 'activities/icons/martialarts.png' %}" alt="martial arts">
-                            </a>
-                            <p><center>Fight<center></p>
-                        </div>
-
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/fitness/">
-                                <img class="img-responsive" src="http://farmingtonfarms.com/wp-content/uploads/2015/01/farmington-farm-icon-_0004_aerobics.png" alt="group fitness">
-                            </a>
-                            <p><center>Fitness<center></p>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/running/">
-                                <img class="img-responsive" src="{% static 'activities/icons/running.png' %}" alt="run">
-                            </a>
-                            <p><center>Run<center></p>
-                        </div>
-
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/skating/">
-                                <img class="img-responsive" src="{% static 'activities/icons/iceskate.png' %}" alt="skate">
-                            </a>
-                            <p><center>Skate<center></p>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/squash/">
-                                <img class="img-responsive" src="{% static 'activities/icons/squash.png' %}" alt="squash">
-                            </a>
-                            <p><center>Squash<center></p>
-                        </div>
-                    </td>
-
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/stephens/">
-                                <img class="img-responsive" src="{% static 'activities/icons/fitness.png' %}" alt="stephens">
-                            </a>
-                            <p><center>Stephens<center></p>
-                        </div>
-                    </td>
-
-                    <td>    
-                        <div class = "icon">
-                            <a href="/activities/swimming/">
-                                <img class="img-responsive" src="{% static 'activities/icons/swimming.png' %}" alt = "swim"/>
-                            </a>
-                            <p><center>Swimming<center></p>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/tennis/">
-                                <img class="img-responsive" src="{% static 'activities/icons/tennis.png' %}" alt="tennis">
-                            </a>
-                            <p><center>Tennis<center></p>
-                        </div>
-                    </td> 
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/watching/">
-                                <img class="img-responsive" src="{% static 'activities/icons/watchingsports.png' %}" alt="watch">
-                            </a>
-                            <p><center>Watch<center></p>
-                        </div>
-                    </td>
-
-                    <td>
-                        <div class = "icon">
-                            <a href="/activities/yoga/">
-                                <img class="img-responsive" src="{% static 'activities/icons/yoga.png' %}" alt="yoga">
-                            </a>
-                            <p><center>Yoga<center></p>
-                        </div>
-                    </td>
-
-
+                    {% endfor %}
                 </tr>
+
             </table>
         </div>
 
@@ -233,13 +104,22 @@
 
 <hr>
 
-
 <hr>
-
 
 
 </div>
 <!-- /.container -->
+<script>
+function favorite(category) {
+    var image = document.getElementById(category);
+    if (image.src.match("staroff")) {
+        image.src = "{% static 'activities/staron.png' %}";
+    } 
+    else {
+        image.src = "{% static 'activities/staroff.png' %}";
+    }
+}
+</script>
 
 </body>
 

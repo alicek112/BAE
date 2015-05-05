@@ -4,11 +4,6 @@ body {
     padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
 }
 
-img {
-	width: 200px;
-	height: 200px;
-}
-
 table {
 	overflow-x: auto;
 	table-layout: fixed;
@@ -22,9 +17,12 @@ td {
 	width: 6.66%;
 	min-width: 6.66%;
 	max-width: 6.66%;
-
 }
 
+img {
+	width: 200px;
+	height: 200px;
+}
 .icon a {
   display: block;
   padding: 0 1px;
@@ -36,6 +34,7 @@ td {
 .icon:hover a {
  -webkit-transform: scale(1.25);
 }
+
 
 footer {
     margin: 50px 0;
