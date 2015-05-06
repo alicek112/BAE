@@ -6,4 +6,6 @@ urlpatterns = [
     url(r'^$', views.index, name = 'index'),
     # ex: /activities/category/
     url(r'^(?P<cat_id>\w+)/$', views.cat, name = 'cat'),
+
+    url(r'^login/$', views.loginview)
 ]

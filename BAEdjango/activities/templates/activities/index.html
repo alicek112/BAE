@@ -46,7 +46,7 @@
                     {% if user.is_authenticated %}
                         <p class="navbar-text">Welcome, {{ user.username }}</p>
                     {% else %}
-                        <p class="navbar-text">Welcome, new user. Please log in.</p>
+                        <p class="navbar-text">Welcome, new user. Please <a href = "/activities/login/"> log in </a>.</p>
                     {% endif %}
         
                 </ul>
