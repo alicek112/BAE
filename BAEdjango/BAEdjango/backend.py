@@ -6,8 +6,7 @@ form = cgi.FieldStorage()
 
 class CASClient:
 
-  def __init__(self, url='https://fed.princeton.edu/cas/'):
-    self.cas_url = url
+  self.cas_url = 'https://fed.princeton.edu/cas/'
 
   def authenticate(self):
     # If the request contains a login ticket, try to validate it
@@ -15,14 +14,14 @@ class CASClient:
       netid = self.Validate(form['ticket'].value)
       if netid != None:
         try:
-          user = User.objects.get(username=netid)
+          return User.objects.get(username=netid)
         except User.DoesNotExist:
                 # Create a new user. Note that we can set password
                 # to anything, because it won't be checked; the password
                 # from settings.py will.
           user = User(username=netid)
           user.save()
-        return user
+          return user
 
       # No valid ticket; redirect the browser to the login page to get one
       login_url = self.cas_url + 'login' \
