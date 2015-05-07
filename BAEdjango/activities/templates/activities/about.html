@@ -1,0 +1,60 @@
+
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+  <title>About</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link href="{% static 'activities/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'activities/css/custom.css' %}" rel="stylesheet">
+  <link rel="icon" type="image/png" href="{% static 'activities/logo6.png' %} ">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/activities/"><img src = "{% static 'activities/logo6.png' %}" style = "width:75px;height:30px"></a>
+            </div>
+
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href = "/activities/about/">About</a></li>
+                    <li><p class="navbar-text">{{ user.username }} | <a href = "/activities/logout/"> Logout </a></p></li>
+        
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+        <h1> BAE. </h1>
+        <h2> Boundless Athletics Engine. </h2>
+        <h3> Discover all of Princeton's fitness and athletic opportunities. </h3>
+
+
+
+    </div>
+<!-- /.container -->
+
+
+</body>
+
+</html>

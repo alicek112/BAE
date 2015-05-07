@@ -6,7 +6,7 @@ form = cgi.FieldStorage()
 
 class CASClient:
 
-  self.cas_url = 'https://fed.princeton.edu/cas/'
+  cas_url = 'https://fed.princeton.edu/cas/'
 
   def authenticate(self):
     # If the request contains a login ticket, try to validate it
@@ -24,7 +24,7 @@ class CASClient:
           return user
 
       # No valid ticket; redirect the browser to the login page to get one
-      login_url = self.cas_url + 'login' \
+      login_url = cas_url + 'login' \
       + '?service=' + urllib.quote(self.ServiceURL())
       print 'Location: ' + login_url
       print 'Status-line: HTTP/1.1 307 Temporary Redirect'

@@ -71,7 +71,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'BAEdjango.wsgi.application'
 
-AUTHENTICATION_BACKENDS = ( 'BAEdjango.backend.CASClient', )
+LOGIN_URL = '/activities/login/'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
