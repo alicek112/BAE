@@ -5,7 +5,7 @@ from .models import Catlist, Mainbae
 
 # main page
 def index(request):
-	allcats = Catlist.objects.all().order_by('name')
+	allcats = Catlist.objects.all().order_by('short')
 	context = RequestContext(request, {'allcats': allcats})
 	template = loader.get_template('activities/index.html')
 	return HttpResponse(template.render(context))
