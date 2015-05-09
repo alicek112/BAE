@@ -22,7 +22,7 @@ def cat(request, cat_id):
        catl = Catlist.objects.get(pk = cat_id)
     except Catlist.DoesNotExist:
         raise Http404("Category does not exist")
-    allcats = Catlist.objects.all().order_by('name')
+    allcats = Catlist.objects.all().order_by('short')
     context = RequestContext(request, {'cat': catl, 'allcats': allcats})
     template = loader.get_template('activities/category.html')
     return HttpResponse(template.render(context))
