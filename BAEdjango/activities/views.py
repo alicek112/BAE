@@ -1,36 +1,28 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from django.http import Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import RequestContext, loader
-from .models import Catlist
-from .models import Mainbae
-from django.contrib.auth import authenticate, login
+from .models import Catlist, Mainbae
 
+# main page
 def index(request):
-	#if not request.user.is_authenticated():
-	#	user = authenticate()
-	#	if user is not None:
-	#		login(request, user)
-	#		context = RequestContext(request)
-	#		template = loader.get_template('activities/index.html')
-	#		return HttpResponse(template.render(context))
-	#	else:
-	#		return HttpResponse("invalid login")
-	#else:
-		allcats = Catlist.objects.all().order_by('name')
-		context = RequestContext(request, {'allcats': allcats})
-		template = loader.get_template('activities/index.html')
-		return HttpResponse(template.render(context))
+	allcats = Catlist.objects.all().order_by('short')
+	context = RequestContext(request, {'allcats': allcats})
+	template = loader.get_template('activities/index.html')
+	return HttpResponse(template.render(context))
 
+# about/product showcase
+def about(request):
+    context = RequestContext(request)
+    template = loader.get_template('activities/about.html')
+    return HttpResponse(template.render(context))
 
-	
-
+# specific category page
 def cat(request, cat_id):
     try:
        catl = Catlist.objects.get(pk = cat_id)
     except Catlist.DoesNotExist:
         raise Http404("Category does not exist")
-    allcats = Catlist.objects.all().order_by('name')
+    allcats = Catlist.objects.all().order_by('short')
     context = RequestContext(request, {'cat': catl, 'allcats': allcats})
     template = loader.get_template('activities/category.html')
     return HttpResponse(template.render(context))

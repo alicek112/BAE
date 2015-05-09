@@ -10,13 +10,13 @@
   <meta name="author" content="">
   <link href="{% static 'activities/css/bootstrap.min.css' %}" rel="stylesheet">
   <link href="{% static 'activities/css/custom.css' %}" rel="stylesheet">
-
+  <link rel="icon" type="image/png" href="{% static 'activities/logo6.png' %} ">
 </head>
 
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <nav class="navbar navbar-default" role="navigation">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -26,16 +26,15 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/activities/">BAE</a>
+                <a class="navbar-brand" href="/activities/"> <img src = "{% static 'activities/logo6.png' %} " style = "width:75px;height:30px"> </a>
             </div>
 
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
-                <ul class="nav navbar-nav navbar-right">
-                    <!-- login and home and stuff --!>
-                </ul>
+              <ul class="nav navbar-nav navbar-right">
+                  <li><a href = "/activities/about/">About</a></li>
+              </ul>
             </div>
             <!-- /.navbar-collapse -->
         </div>
@@ -63,44 +62,60 @@
                                 {% endwith %}
                             </a>
                         </div>
-                       
-                        <p><center>{{aCat.name}}<center></p>
 
-                        <center><img id={{aCat.category}} onclick="favorite('{{aCat.category | safe}}');" src="{% static 'activities/staroff.png' %}" style = "width:30px;height:30px"> <center>
+                        <p><center>{{aCat.short}}<center></p>
 
                     </td>
-                    {% endfor %}
-                </tr>
 
-            </table>
+
+                    {% endfor %}
+                    </tr>
+
+                </table>
+            </div>
+
+
+        </div>
+    <!-- /.icon row-->
+
+    <!-- specific category info -->
+    <div class = "row">
+      <div class="col-md-4 column">
+
+        <div class = "row">
+            <h1 class="page-header"> {{cat.name}}</h1>
+            <p> {{cat.description}} </p>
+        </div>
+
+        <div class = "row">
+           <h1 class="page-header"> Resources </h1>
+           <p> {{cat.resources | safe}} </p>
+       </div>
+
+       <div class = "row">
+           <h1 class="page-header"> Map </h1>
+           <div class="embed-responsive embed-responsive-4by3">
+               {{cat.map | safe}}
+            </div>
         </div>
 
 
-    </div>
-    <!-- /.row -->
 
+     </div>
 
-    <div class = "row">
-      <!--Activity description -->
-        <div class="col-md-4 column">
-            <h1 class="page-header"> {{cat.name}}</h1>
-
-             <p> {{cat.description}} <br> <br> {{cat.resources | safe}} </p>
-         </div>
-
-        <!--calendar-->
-        <div class = "col-md-8 column">
+         <!--calendar-->
+         <div class = "col-md-8 column">
 
             <h1 class="page-header">Events</h1>
             <div class="embed-responsive embed-responsive-4by3">
-            
 
-           <iframe src="https://www.google.com/calendar/embed?mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;{{cat.calendar | safe}}ctz=America%2FNew_York" style=" border-width:0 " width="800" height="600" frameborder="0" scrolling="no"></iframe>
-        </div>
 
-        </div>
-   <!-- /.row -->
-    </div>
+             <iframe src="https://www.google.com/calendar/embed?mode=WEEK&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;{{cat.calendar | safe}}ctz=America%2FNew_York" style=" border-width:0 " width="800" height="600" frameborder="0" scrolling="no"></iframe>
+         </div>
+
+     </div>
+     <!-- /.row -->
+ </div>
 
 <hr>
 
@@ -109,18 +124,6 @@
 
 </div>
 <!-- /.container -->
-<script>
-function favorite(category) {
-    var image = document.getElementById(category);
-    if (image.src.match("staroff")) {
-        image.src = "{% static 'activities/staron.png' %}";
-    } 
-    else {
-        image.src = "{% static 'activities/staroff.png' %}";
-    }
-}
-</script>
-
 </body>
 
 </html>

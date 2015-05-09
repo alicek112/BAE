@@ -1,7 +1,12 @@
-
-
-body {
-    padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 700;
 }
 
 table {
@@ -33,9 +38,4 @@ img {
 
 .icon:hover a {
  -webkit-transform: scale(1.25);
-}
-
-
-footer {
-    margin: 50px 0;
 }
