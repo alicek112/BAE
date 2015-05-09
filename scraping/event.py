@@ -13,6 +13,9 @@ class Event(object):
     info = ""
     category = ""
     
+    '''
+    Create an event with given name, start and end time, category and general information.
+    '''
     def __init__(self, name, starttime, endtime, info, category):
         self.name = name 
         self.starttime = starttime
@@ -20,6 +23,9 @@ class Event(object):
         self.info = info
         self.category = category
     
+    '''
+    Format the event as a string.
+    '''
     def __str__(self):
         ret_string = self.name + '\n' + str(self.starttime) + '---' + str(self.endtime) + '\n'
         if isinstance(self.info, unicode):
@@ -32,6 +38,9 @@ class Event(object):
         ret_string = ret_string + '\n' + self.category
         return ret_string
     
+    '''
+    Set the extraneous information for the event.
+    '''
     def set_info(self, info):
         self.info = info
     

@@ -32,7 +32,12 @@ headers = {'User-Agent': 'Mozilla/5.0'}
 
 all_events = []
 
+# Google Developers API key
 cal_key = 'AIzaSyCKbcXTZ1vk_CzAwYLrvCFDiiLiVxoVtd8'
+
+'''
+HELPER FUNCTIONS
+'''
 
 '''
 Returns the datetime of the last day of exams for the current semester.
@@ -51,6 +56,7 @@ def get_end_of_semester():
 
 '''
 Returns day of the week code from a string.
+(Can determine that "wed" "WED", "Wednesday" and "Wednesdays" all mean the same day)
 '''
 def get_day_of_week(input):
     if not input:
@@ -59,6 +65,41 @@ def get_day_of_week(input):
         if input.lower() in d.lower():
             return days_of_the_week[d]
     return None
+
+'''
+Given a recurring event's details (name, start and end dates and times, info and category)
+and what days of the week it repeats (weekly), generates each instance of that
+event and appends it to the list of all events.
+'''
+def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly, info, category):
+    list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date, byweekday=weekly))
+    
+    for l in list_of_dates:
+        day = l
+        start_datetime = datetime.datetime.combine(day, start_time)
+        
+        # handle case of end time being on a different day
+        if end_time < start_time:
+            day = day + relativedelta(days=+1)
+        
+        end_datetime = datetime.datetime.combine(day, end_time)
+        e = event.Event(name, start_datetime, end_datetime, info, category)
+        all_events.append(e)
+
+'''
+Splits text by a list of separators - adapted from Stackoverflow.com code
+'''
+def split(txt, seps):
+    default_sep = seps[0]
+
+    # skip seps[0] because that's the default seperator
+    for sep in seps[1:]:
+        txt = txt.replace(sep, default_sep)
+    return txt.split(default_sep)
+
+'''
+SCRAPING FUNCTIONS
+'''
 
 '''
 Scrapes the dance department website for dance events.
@@ -205,20 +246,6 @@ def oa():
             e = event.Event(name, starttime, endtime, info, 'oa')
             all_events.append(e)
 
-def make_weekly_events(name, start_date, end_date, start_time, end_time, weekly, info, category):
-    list_of_dates = list(rrule(WEEKLY, dtstart=start_date, until=end_date, byweekday=weekly))
-    
-    for l in list_of_dates:
-        day = l
-        start_datetime = datetime.datetime.combine(day, start_time)
-        
-        # handle case of end time being on a different day
-        if end_time < start_time:
-            day = day + relativedelta(days=+1)
-        
-        end_datetime = datetime.datetime.combine(day, end_time)
-        e = event.Event(name, start_datetime, end_datetime, info, category)
-        all_events.append(e)
 
 '''
 Scrape the Dillon PDF Fitness schedules
@@ -393,71 +420,13 @@ def fitness():
                     make_weekly_events(name, start_date, end_date, start_time, end_time, day_of_week, info, cat)
 
 '''
-Splits text by a list of separators - adapted from Stackoverflow.com code
+Scrape the Dillon Gym facilities schedules.
 '''
-def split(txt, seps):
-    default_sep = seps[0]
-
-    # we skip seps[0] because that's the default seperator
-    for sep in seps[1:]:
-        txt = txt.replace(sep, default_sep)
-    return txt.split(default_sep)
-
-def get_facilities_hours(hours, name, category, info, start_date):
-    my_date = start_date
-    last_time = None
-    for d in hours:
-        if re.search('\d:', d):
-            start_time = re.split('-|—', d)[0]
-            end_time = re.split('-|—', d)[1]
-            start_hr = int(re.split('[a|p]o*m', start_time.split(':')[0])[0])
-            end_hr = int(re.split('[a|p]o*m', end_time.split(':')[0])[0])
-            start_min = int(re.split('[a|p]o*m', start_time.split(':')[1])[0])
-            end_min = int(re.split('[a|p]o*m', end_time.split(':')[1])[0])
-
-            if 'p' in start_time:
-                if start_hr < 12:
-                    start_hr += 12
-            if 'p' in end_time:
-                if end_hr < 12:
-                    end_hr += 12
-              #  elif end_min != 0:
-              #      end_hr -= 12
-            else:
-                if end_hr == 12:
-                    end_hr -= 12
-            
-            start = datetime.time(start_hr, start_min)
-            end = datetime.time(end_hr, end_min)
-            
-            today = my_date
-            start_datetime = datetime.datetime.combine(today, start)
-            if end < start:
-                today = my_date + relativedelta(days=1)
-            end_datetime = datetime.datetime.combine(today, end)
-            
-            #update day of week
-            if last_time:
-                if start_datetime < last_time:
-                    my_date = my_date + relativedelta(days=1)
-                    start_datetime = start_datetime + relativedelta(days=1)
-                    end_datetime = end_datetime + relativedelta(days=1)
-                        
-            last_time = end_datetime
-            
-            e = event.Event(name, start_datetime, end_datetime, info, category)
-            all_events.append(e)
-        
-        # if calendar says "closed", update day
-        if 'CLOSED' in d:
-            my_date = my_date + relativedelta(days=1)
-
 def facilities():
     dillon_url = 'http://www.princeton.edu/campusrec/dillon-gym/facility-schedules/'
 
     response = requests.get(dillon_url, headers=headers)
     soup = BeautifulSoup(response.text)
-    #print soup.prettify()
     links = soup.select('div.filename')
     
     # scrape each schedule that Dillon has on its website
@@ -493,12 +462,64 @@ def facilities():
             # parse indoor track hours
             get_facilities_hours(schedule[9].split(), 'Indoor Track Hours', 'running', 'Jadwin Gym Indoor Track', start_date) 
 
+'''
+Parse individual facilities hours and add their hours as events.
+'''
+def get_facilities_hours(hours, name, category, info, start_date):
+    my_date = start_date
+    last_time = None
+    for d in hours:
+        if re.search('\d:', d):
+            start_time = re.split('-|—', d)[0]
+            end_time = re.split('-|—', d)[1]
+            start_hr = int(re.split('[a|p]o*m', start_time.split(':')[0])[0])
+            end_hr = int(re.split('[a|p]o*m', end_time.split(':')[0])[0])
+            start_min = int(re.split('[a|p]o*m', start_time.split(':')[1])[0])
+            end_min = int(re.split('[a|p]o*m', end_time.split(':')[1])[0])
+
+            if 'p' in start_time:
+                if start_hr < 12:
+                    start_hr += 12
+            if 'p' in end_time:
+                if end_hr < 12:
+                    end_hr += 12
+            else:
+                if end_hr == 12:
+                    end_hr -= 12
+            
+            start = datetime.time(start_hr, start_min)
+            end = datetime.time(end_hr, end_min)
+            
+            today = my_date
+            start_datetime = datetime.datetime.combine(today, start)
+            if end < start:
+                today = my_date + relativedelta(days=1)
+            end_datetime = datetime.datetime.combine(today, end)
+            
+            #update day of week
+            if last_time:
+                if start_datetime < last_time:
+                    my_date = my_date + relativedelta(days=1)
+                    start_datetime = start_datetime + relativedelta(days=1)
+                    end_datetime = end_datetime + relativedelta(days=1)
+                        
+            last_time = end_datetime
+            
+            e = event.Event(name, start_datetime, end_datetime, info, category)
+            all_events.append(e)
+        
+        # if calendar says "closed", update day
+        if 'CLOSED' in d:
+            my_date = my_date + relativedelta(days=1)
+
+'''
+Scrape the special Stephens Fitness Center events.
+'''
 def special_fitness():
     fitness_url = 'http://www.princeton.edu/campusrec/stephens-fitness-center/special-events/'
     
     response = requests.get(fitness_url, headers=headers)
     soup = BeautifulSoup(response.text)
-    #print soup.prettify()
     links = soup.select('div.filename')
     
     for l in links:
@@ -509,6 +530,8 @@ def special_fitness():
         
             url = fitness_url + l.select('a')[0]['href']
             text = ''
+            
+            # open the PDF to get information on the event
             try:
                 remoteFile = urlopen(Request(url)).read()
                 memoryFile = StringIO(remoteFile)
@@ -517,6 +540,7 @@ def special_fitness():
             except urllib2.HTTPError:
                 continue
             
+            # parse event information
             name = title.split(':')[0]
             date = title.split(':')[1].split('>')[0]
             time = title.split(':')[1].split('>')[1]
@@ -539,6 +563,9 @@ def special_fitness():
             e = event.Event(name, starttime, endtime, text, 'stephens')
             all_events.append(e)
 
+'''
+Scrape the Aikido Club website's scheduled events.
+'''
 def aikido():
     aikido_url = 'http://www.princeton.edu/~aikido/classes.html'
     response = requests.get(aikido_url, headers=headers)
@@ -550,6 +577,7 @@ def aikido():
     start_date = datetime.datetime.today()
     end_date = get_end_of_semester()
     
+    # for every event, parse the information inside
     for h in head:
         name = 'Aikido Class'
         category = 'martial'
@@ -569,6 +597,9 @@ def aikido():
         
         make_weekly_events(name, start_date, end_date, start, end, weekly, info, category)
 
+'''
+Scrape the Dillon Gym's Noon Hoops events page.
+'''
 def basketball():
     basketball_url = 'http://www.princeton.edu/campusrec/informal-recreation/noon-hoops/'
     response = requests.get(basketball_url, headers=headers)
@@ -614,14 +645,20 @@ def basketball():
             end = datetime.time(end_hr, end_min)
             
     make_weekly_events(name, start_date, end_date, start, end, weekly, location, 'basketball')
-    
+ 
+'''
+Scrape the Princeton Tiger Athletics webpage for home events.
+'''   
 def sports():
     sports_url = 'http://www.goprincetontigers.com/main/Schedule.dbml'
     response = requests.get(sports_url, headers=headers)
     soup = BeautifulSoup(response.text)
+    # only interested in home games
     game = soup.select('tr.home')
+    
     for g in game:
         
+        # get date information
         date_info = g.select('td.date')[0].get_text().strip().split('-')
         date = parse(date_info[0].encode('ascii', errors='ignore'), fuzzy=True)
         end_date = None
@@ -652,7 +689,6 @@ def sports():
             list_of_start_dates = list(rrule(DAILY, dtstart=start_datetime, until=end_date))
             list_of_end_dates = list(rrule(DAILY, dtstart=end_datetime, until=end_date))
         
-        
         # if the event is multi-day, put all of them into event
         if list_of_start_dates:
             for s, e in zip(list_of_start_dates, list_of_end_dates):
@@ -664,14 +700,19 @@ def sports():
             e = event.Event(name, start_datetime, end_datetime, location, 'watching')
             all_events.append(e)
 
+'''
+Scrape the Baker Ice Rink Google Calendar of open skating hours.
+'''
 def ice():  
     iceId = '59tmhsi6gspp713e2aa91i0ea88c5h6g@import.calendar.google.com'
     timeMin = datetime.datetime.now() - relativedelta(months=1)
     timeMin = timeMin.isoformat('T') + 'Z'
+    
+    # request JSON of all events in the calendar
     ice_url = 'https://www.googleapis.com/calendar/v3/calendars/' + iceId + '/events?singleEvents=true&timeMin=' + timeMin + '&key=' + cal_key
-
     response = requests.get(ice_url, headers=headers)
     j = response.json()
+    
     category = 'skating'
     info = 'Free skating at Baker Ice Rink'
     for x in j['items']:
@@ -681,6 +722,9 @@ def ice():
         e = event.Event(name, start, end, info, category)
         all_events.append(e)
 
+'''
+Scrape the Swing Dancing Club for their weekly classes.
+'''
 def swing():  
     swing_url = 'http://swing.princeton.edu/announcements/'
     response = requests.get(swing_url, headers=headers)
@@ -690,9 +734,11 @@ def swing():
     heading = announcement.a.get_text()
     start_date = parse(announcement.time.get_text())
     
+    # don't parse announcement if it's about a cancelled class
     if 'canceled' in heading.lower():
         return
     
+    # announcements are either about tonight or tomorrow
     if 'tomorrow' in heading.lower():
         start_date = start_date + datetime.timedelta(days=1)
     
@@ -735,8 +781,6 @@ def swing():
                 e = event.Event(name, start_datetime, end_datetime, info, category)
                 all_events.append(e)
     
-
- 
  
 oa()
 dance()
@@ -756,6 +800,8 @@ for e in all_events:
     print ''
 
 '''
+
+# Insert each event into the database
 con = mdb.connect('bae.cp0g2lykd7ui.us-east-1.rds.amazonaws.com', 'bae', 'bae333bae', 'bae333');
 
 with con:

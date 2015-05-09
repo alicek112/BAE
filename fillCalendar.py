@@ -1,5 +1,11 @@
+'''
+Fill all the Google calendars with the events currently in the database.
+
+Created by Alice Kroutikova '15
+'''
+
 import MySQLdb as mdb
-import gflags
+#import gflags
 import httplib2
 from apiclient.discovery import build
 from oauth2client.file import Storage
@@ -9,7 +15,6 @@ from oauth2client import tools
 from oauth2client.tools import run_flow
 import dateutil.tz
 import datetime
-from time import sleep
 
 con = mdb.connect('bae.cp0g2lykd7ui.us-east-1.rds.amazonaws.com', 'bae', 'bae333bae', 'bae333');
 
@@ -47,8 +52,6 @@ calIds = {'swimming': 'm7o1o5mddl6k144tfa0pmr8qd0@group.calendar.google.com',
           'biking': '4hi03tl4aqjbftg4cgs76copk0@group.calendar.google.com',
           'yoga': 'h0emak3aebi1bp9m1ddbug7uck@group.calendar.google.com'}
 
-#calIds = {'basketball': 'qa37h9n8loa5tt9s11v1bfk5is@group.calendar.google.com'}
-
 localtz = dateutil.tz.tzlocal()
 localoffset = localtz.utcoffset(datetime.datetime.now(localtz))
 offset = int(localoffset.total_seconds() / 3600)
@@ -64,9 +67,7 @@ for cal in calIds:
       if not page_token:
         break
 
-
-print 'finished deleting'
-
+# Load each event into the calendar
 for s in sql:
     event = {
       'summary': s[0].replace('\xac', '').replace('\xe5\xa8', ''),
@@ -78,7 +79,6 @@ for s in sql:
         'dateTime': s[3].isoformat() + '-0' + str(offset)[1:] + ':00'
         }
     }
-    print event
     
     if s[1] in calIds:
         created_event = service.events().insert(calendarId=calIds[s[1]], body=event).execute()
