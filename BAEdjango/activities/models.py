@@ -11,7 +11,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-
+# categories of activities
 class Catlist(models.Model):
     category = models.CharField(db_column='CATEGORY', max_length=100, blank=True, primary_key = True)  # Field name made lowercase.
     description = models.CharField(db_column='DESCRIPTION', max_length=1000, blank=True, null=True)  # Field name made lowercase.
@@ -25,7 +25,7 @@ class Catlist(models.Model):
         managed = False
         db_table = 'catList'
 
-
+# all scraped events, classes, open hours, etc
 class Mainbae(models.Model):
     name = models.CharField(db_column='NAME', max_length=100, blank=True, primary_key = True)  # Field name made lowercase.
     category = models.CharField(db_column='CATEGORY', max_length=100, blank=True, null=True)  # Field name made lowercase.

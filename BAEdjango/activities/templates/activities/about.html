@@ -1,4 +1,3 @@
-
 {% load staticfiles %}
 
 <!DOCTYPE html>
@@ -10,12 +9,15 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <link href="{% static 'activities/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link href="{% static 'activities/css/custom.css' %}" rel="stylesheet">
+  <link href="{% static 'activities/css/landing-page.css' %}" rel="stylesheet">
   <link rel="icon" type="image/png" href="{% static 'activities/logo6.png' %} ">
+  <!-- Custom Fonts -->
+  <link href="{% static 'activities/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-default" role="navigation">
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -34,8 +36,6 @@
 
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href = "/activities/about/">About</a></li>
-                    <li><p class="navbar-text">{{ user.username }} | <a href = "/activities/logout/"> Logout </a></p></li>
-        
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -43,16 +43,140 @@
         <!-- /.container -->
     </nav>
 
-    <!-- Page Content -->
-    <div class="container">
-        <h1> BAE. </h1>
-        <h2> Boundless Athletics Engine. </h2>
-        <h3> Discover all of Princeton's fitness and athletic opportunities. </h3>
 
+        <div class="intro-header">
+            <div class="container">
 
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="intro-message">
+                            <h1>BAE</h1>
+                            <h3>Boundless Athletics Engine</h3>
+                            <hr class="intro-divider">
+                            <ul class="list-inline intro-social-buttons">
+                                <li>
+                                    <a href="/activities/" class="btn btn-default btn-lg"><span class="network-name">go</span></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.intro-header -->
+
+    <!-- About Section -->
+    <div class="container content-section text-center">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2">
+                <h2 class = "section-heading">About</h2>
+                <hr class = "intro-divider">
+                <p class = "lead"> BAE helps Princeton students discover and take advantage of the variety of athletic and fitness opportunities and resources at Princeton by consolidating information from numerous sources into one easy-to-use website.</p>
+                <p>Created by Alice Kroutikova '15, Brent Read '16, and Serena Zheng '17 for <a href = "http://www.cs.princeton.edu/courses/archive/spring15/cos333/" target = "_blank"> COS 333 </a>
+            </div>
+        </div>
     </div>
-<!-- /.container -->
+
+
+        <!-- features -->
+
+
+        <div class="content-section-a">
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-5 col-sm-6">
+                        <hr class="section-heading-spacer">
+                        <div class="clearfix"></div>
+                        <h2 class="section-heading">Discovery</h2>
+                        <p class="lead">Discover the variety of the fitness and athletics activities available at Princeton</p>
+                    </div>
+                    <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                        <img class="img-responsive" src="{% static 'activities/iconc.png' %}" alt="">
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.content-section-a -->
+
+        <div class="content-section-b">
+
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
+                        <hr class="section-heading-spacer">
+                        <div class="clearfix"></div>
+                        <h2 class="section-heading">Scheduling</h2>
+                        <p class="lead">Find out what athletics and fitness events, classes, and open hours fit into your schedule</p>
+                    </div>
+                    <div class="col-lg-5 col-sm-pull-6  col-sm-6">
+                        <img class="img-responsive" src="{% static 'activities/calendar.png' %}" alt="">
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.content-section-b -->
+
+        <div class="content-section-a">
+
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-5 col-sm-6">
+                        <hr class="section-heading-spacer">
+                        <div class="clearfix"></div>
+                        <h2 class="section-heading">Resources</h2>
+                        <p class="lead">Browse through existing resources to make your fitness and athletic endeavors as successful as possible</p>
+                    </div>
+                    <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                        <img class="img-responsive" src="{% static 'activities/map.png' %}" alt="">
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.content-section-a -->
+
+        <div class="banner">
+
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h2>BAE is bae.</h2>
+                    </div>
+                    <div class="col-lg-6">
+                        <ul class="list-inline banner-social-buttons">
+                            <li>
+                                <a href="/activities/" class="btn btn-default btn-lg"><span class="network-name">check it out</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container -->
+
+        </div>
+
+        <!-- jQuery -->
+        <script src="{% static 'activities/js/jquery.js' %}"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="{% static 'activities/js/bootstrap.min.js' %}"></script>
+
 
 
 </body>
