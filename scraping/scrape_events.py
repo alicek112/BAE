@@ -4,7 +4,6 @@ Visit sites to find athletic event information.
 
 Creator: Alice Kroutikova '15
 '''
-
 import requests
 import event
 from bs4 import BeautifulSoup

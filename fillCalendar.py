@@ -16,14 +16,16 @@ from oauth2client.tools import run_flow
 import dateutil.tz
 import datetime
 
+# get all events from the MySQL database
 con = mdb.connect('bae.cp0g2lykd7ui.us-east-1.rds.amazonaws.com', 'bae', 'bae333bae', 'bae333');
-
 cur = con.cursor()
 cur.execute("SELECT NAME, CATEGORY, START, END, INFO FROM mainBae")
 sql = cur.fetchall()
 
+# Google Calendar Developers API key
 api_key = 'AIzaSyB0Bkaiq-6XynXNkw3yF9RHwHQ-_nh0W7o'
 
+# Connect to Google Calendar API with bae333 Google account.
 scope = 'https://www.googleapis.com/auth/calendar'
 flow = OAuth2WebServerFlow('765641061823-7n5t3tdc46foqbef4c18eg1a8o6qjh61.apps.googleusercontent.com', 't5zK6t77HqfMNe-HUs3roWP_', scope)
 
@@ -36,6 +38,7 @@ http = httplib2.Http()
 http = credentials.authorize(http)
 service = build('calendar', 'v3', http=http, developerKey=api_key)
 
+# Google calendar IDs for each category's calendar
 calIds = {'swimming': 'm7o1o5mddl6k144tfa0pmr8qd0@group.calendar.google.com',
           'skating': 'ias81kgc0r65c11oaj9ej7isg0@group.calendar.google.com',
           'watching': 'ehjrk0u8tnh7kitqeiu99c4vvg@group.calendar.google.com',
